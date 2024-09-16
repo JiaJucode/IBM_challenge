@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
 import Stack from '@mui/material/Stack';
@@ -97,13 +97,47 @@ const ChatPage = () => {
     const [chatBoxs, setChatBoxs] = useState([exampleChat]);
     const [currentChat, setCurrentChat] = useState(exampleChat);
     const [message, setMessage] = useState('');
+    const chatBottomRef = useRef<HTMLDivElement>(null);
+    const [replyWaiting, setReplyWaiting] = useState(false);
 
     useEffect(() => {
-        // fetch shits
+        // fetch and setCHatBoxs
     }, []);
 
+    useEffect(() => {
+        chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [currentChat]);
+
+    useEffect(() => {
+        if (replyWaiting) {
+            // fake bot reply
+            setTimeout(() => {
+                const newMessage = {
+                    sender: '',
+                    message: 'I am a bot',
+                }
+                setCurrentChat({
+                    name: currentChat.name,
+                    messages: [...currentChat.messages, newMessage]
+                });
+                setReplyWaiting(false);
+            }, 1000);
+        }
+    }, [replyWaiting]);
+
     const sendRequest = () => {
-        // request to backend
+        // update backend with the new message
+
+        // update frontend
+        const newMessage = {
+            sender: 'user',
+            message: message,
+        }
+        setCurrentChat({
+            name: currentChat.name,
+            messages: [...currentChat.messages, newMessage]
+        });
+        setReplyWaiting(true);
     }
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -145,6 +179,7 @@ const ChatPage = () => {
                             backgroundColor: 'primary.main',
                             width: '100%',
                             height: '100dvh',
+                            paddingBottom: 7,
                             overflowY: 'auto'
                         }}>
                         <Stack spacing={2} direction="column" alignItems="center">
@@ -167,7 +202,9 @@ const ChatPage = () => {
                                 </Box>
                             ))}
                         </Stack>
+                        <div ref={chatBottomRef} />
                         <TextField variant='outlined' multiline fullWidth value={message} 
+                            disabled={replyWaiting}
                             onKeyDown={(e) => handleKeyDown(e)}
                             onChange={(e) => setMessage(e.target.value)}
                             slotProps={{
@@ -193,6 +230,10 @@ const ChatPage = () => {
                                 '& .MuiInputBase-input': {
                                     fontSize: 25, // Apply font size to the input text
                                 },
+                                '& .MuiOutlinedInput-root.Mui-disabled': {
+                                    backgroundColor: 'primary.main',
+                                    borderRadius: 7,
+                                }
                             }}/>
                         <InputAdornment position="end">
                             <IconButton>
