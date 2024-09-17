@@ -8,8 +8,6 @@ import json
 
 app = Flask(__name__)
 
-CORS(app)
-
 def aiResponse(message):
     return "I am a bot"
 
@@ -21,10 +19,8 @@ def hello():
     return jsonify({'message': 'Hello World!'})
 
 def get_chat_history(chat_ID):
-    print(chat_ID)
     db = ChatHistoryDatabase()
     chat_history = db.get_chat_history(chat_ID)[0]
-    print(json.loads(chat_history))
     return jsonify({'chat_history': chat_history})
 
 def get_user_chats(user_ID):
@@ -44,8 +40,9 @@ def handle_get_chat_history():
     else:
         return jsonify({'error': 'chat_ID or user_ID parameter is required'})
 
-@app.route('/api/AIResponse/<int:user_ID>/<int:chat_ID>', methods=['POST'])
-def add_chat_message(chat_ID):
+@app.route('/api/AIResponse', methods=['POST'])
+def add_chat_message():
+    chat_ID = request.json['chat_ID']
     message = request.json['message']
     chat_history = ChatHistoryDatabase()
     chat_history.add_message(chat_ID, message)

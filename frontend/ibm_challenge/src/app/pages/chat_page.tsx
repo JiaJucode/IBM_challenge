@@ -78,9 +78,8 @@ const ChatPage = () => {
     }, [chatMessagesLoading]);
 
     useEffect(() => {
-        if (replyWaiting) {
-            // fake bot reply
-            
+        if (!replyWaiting) {
+            chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
     }, [replyWaiting]);
 
@@ -91,17 +90,39 @@ const ChatPage = () => {
     }
 
     const sendRequest = () => {
-        // update backend with the new message
-
-        // update frontend
+        setReplyWaiting(true);
+        // // update frontend
         if (currentChat !== null) {
             setChatBoxs((prevChatBoxs) => {
-                let newChatBoxs = prevChatBoxs;
+                const newChatBoxs = prevChatBoxs;
                 newChatBoxs[currentChat].messages.push(message);
                 return newChatBoxs;
             });
         }
-        setReplyWaiting(true);
+
+        // update backend with the new message
+        fetch('http://localhost:5000/api/AIResponse', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                chat_ID: currentChat,
+                message: message
+            })
+        }).then(response => response.json())
+            .then((data: { response: string }) => {
+                if (data.response.length > 0 && currentChat !== null) {
+                    setChatBoxs((prevChatBoxs) => {
+                        const newChatBoxs = prevChatBoxs;
+                        newChatBoxs[currentChat].messages.push(data.response);
+                        return newChatBoxs;
+                    });
+                    console.log("backend updated");
+                    console.log(chatBoxs[currentChat].messages);
+                }
+                setReplyWaiting(false);
+            })
     }
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
