@@ -10,6 +10,9 @@ services:
       FLASK_ENV: development
     networks:
       - app-network
+    secrets:
+      - google_api_key
+      - google_search_engine_id
 
   frontend:
     build: ./frontend/ibm_challenge
@@ -22,6 +25,12 @@ services:
       - NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
     networks:
       - app-network
+  
+  secrets:
+    api_key:
+      external: true
+    search_engine_id:
+      external: true
 
 networks:
   app-network:

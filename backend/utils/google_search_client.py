@@ -1,8 +1,8 @@
 import requests
-import json
+import os
 
-api_key =  "AIzaSyAK9NyYHFuDOGMQY22ppIvw5w5Skc1GO58" 
-search_engine_id = "c41ac0548f58c4e56"
+api_key = os.getenv("GOOGLE_API_KEY")
+search_engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID") 
 main_keyword = "test"
 
 url = f"https://www.googleapis.com/customsearch/v1"
