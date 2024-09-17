@@ -25,7 +25,6 @@ const ChatPage = () => {
 
     useEffect(() => {
         // fetch and setCHatBoxs
-        console.log('fetching chat lists');
         fetch('http://localhost:5000/api/ChatHistory?user_ID=1')
             .then(response => response.json())
             .then((data: { chat_ID: number; chat_name: string }[]) => {
@@ -52,12 +51,9 @@ const ChatPage = () => {
             chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
         else {
-            console.log(currentChat);
             if (currentChat !== null) {
-                console.log('currentChat:', currentChat);
                 if (chatBoxs[currentChat].messages.length === 0) {
                     // fetch and set messages
-                    console.log('fetching chat messages');
                     fetch(`http://localhost:5000/api/ChatHistory?chat_ID=${currentChat}`)
                         .then(response => response.json())
                         .then((data: { chat_history: string }) => {
@@ -84,7 +80,6 @@ const ChatPage = () => {
     }, [replyWaiting]);
 
     const handleSelectChat = (chatID: number) => {
-        console.log('selecting chat:', chatID);
         setCurrentChat(chatID);
         setChatMessagesLoading(true);
     }
@@ -118,8 +113,6 @@ const ChatPage = () => {
                         newChatBoxs[currentChat].messages.push(data.response);
                         return newChatBoxs;
                     });
-                    console.log("backend updated");
-                    console.log(chatBoxs[currentChat].messages);
                 }
                 setReplyWaiting(false);
             })
