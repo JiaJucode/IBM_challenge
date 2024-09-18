@@ -1,8 +1,24 @@
 import os, requests, json
+import numpy as np
 
 # Google Maps places API: https://developers.google.com/maps/documentation/places/web-service/text-search?hl=en
 PLACES_URL = "https://places.googleapis.com/v1/places:searchText"
+EARTH_RADIUS = 6371
 api_key = os.getenv("MAPS_API")
+
+def to_rad(degree):
+    return np.pi * degree/180
+
+def earth_distance(lon1, lat1, lon2, lat2):
+    # In kilometer, the distance between 2 geo-coordinates
+    lats = [to_rad(lat) for lat in (lat1, lat2)]
+    lons = [to_rad(lon) for lon in (lon1, lon2)]
+    rise2 = pow(np.sin(lats[0])-np.sin(lats[1]), 2)
+    ra = np.cos(lats[0])
+    rb = np.cos(lats[1])
+    run2 = ra*ra + rb*rb - 2*ra*rb*np.cos(lons[0] - lons[1])
+    ang = 2*np.arcsin(min(np.sqrt(rise2+run2)/2, 1))
+    return EARTH_RADIUS * ang
 
 class TextSearch:
     def __init__(self) -> None:
@@ -23,6 +39,7 @@ if __name__ == "__main__":
     ts = TextSearch()
     ts.query = "mexican restaurant cambridge"
     ts.get_response()
+    # print(earth_distance(0, 35, 110, 55))
 
     # sample response
     {
