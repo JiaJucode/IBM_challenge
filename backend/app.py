@@ -1,56 +1,108 @@
 ## Flask APIs. Return JSON data
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from session import ChatHistoryDatabase, SearchResponseDatabase
+from database import ChatsDatabase, SearchResponseDatabase
 import json
 
 app = Flask(__name__)
-chat_db = ChatHistoryDatabase()
+chat_db = ChatsDatabase()
 search_db = SearchResponseDatabase()
 
-def aiResponse(message):
+def get_ai_response(message):
     return "I am a bot"
 
 # Enable CORS for requests only to /api/* from frontend server
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
+
 @app.route('/api/hello', methods=['GET'])
 def hello():
     return jsonify({'message': 'Hello World!'})
 
-def get_chat_history(chat_ID):
-    chat_history = chat_db.get_chat_history(chat_ID)[0]
-    return jsonify({'chat_history': chat_history})
 
-def get_user_chats(user_ID):
-    chat = chat_db.get_user_chats(user_ID)
-    chat_IDs, chat_names = zip(*chat) if chat else ([], [])
-    return jsonify([{'chat_ID': chat_ID, 'chat_name': chat_name} 
-                    for chat_ID, chat_name in zip(chat_IDs, chat_names)])
+@app.route('/api/chat/<int:chat_id>', methods=['GET'])
+def get_chat(chat_id):
+    '''
+    Get a chat and its messages by chat ID.
 
-@app.route('/api/ChatHistory', methods=['GET'])
-def handle_get_chat_history():
-    chat_db.start()
-    chat_ID = request.args.get('chat_ID')
-    user_ID = request.args.get('user_ID')
-    if chat_ID:
-        return get_chat_history(chat_ID)
-    elif user_ID:
-        return get_user_chats(user_ID)
-    else:
-        return jsonify({'error': 'chat_ID or user_ID parameter is required'})
+    Return format:
+    {
+        'chat': {
+            'id': <chat_id>,
+            'search_query': <search_query>,
+            'summarized_search_results': <summarized_search_results>
+        },
+        'messages': [
+            {
+                'role': <role>,
+                'content': <content>,
+                'timestamp': <timestamp>
+            },
+            ...
+        ]
+    '''
+    chat = chat_db.get_chat(chat_id)
+    return jsonify(chat)
 
-@app.route('/api/AIResponse', methods=['POST'])
-def add_chat_message():
-    chat_ID = request.json['chat_ID']
-    message = request.json['message']
-    chat_db.start()
-    chat_db.add_message(chat_ID, message)
-    response = aiResponse(message)
-    chat_db.add_message(chat_ID, response)
-    # not closing the database connection to reduce overhead
-    chat_db.save_exit()
+
+@app.route('/api/chats', methods=['GET'])
+def get_chats():
+    '''
+    Get high level info for all chats.
+
+    Return format:
+        [
+            {
+                'id': <chat_id>,
+                'search_query': <search_query>,
+                'summarized_search_results': <summarized_search_results>
+            },
+            ...
+        ]
+    '''
+    chats = chat_db.get_chats()
+    return jsonify(chats)
+
+
+@app.route('/api/ai_response', methods=['POST'])
+def get_ai_response():
+    '''
+    Gets response for user message from AI, and adds both new messages to the chat history.
+
+    Request format:
+    {
+        'chat_id': <chat_id>,
+        'message': <message>
+    }
+
+    Response format:
+    {
+        'response': <response>
+    }
+    '''
+
+    # Get required parameters from request
+    request_data = request.get_json()
+    chat_id = request_data.get('chat_id')
+    message = request_data.get('message')
+
+    # Attempt to get AI response
+    try:
+        response = get_ai_response(message)
+    except Exception as e:
+        return jsonify({'error': f"Error getting AI response: {e}"}), 500
+    
+    # Save messages
+    chat_db.add_message(chat_id=chat_id, role='user', content=message)
+    chat_db.add_message(chat_id=chat_id, role='assistant', content=response)
+
     return jsonify({'response': response})
+    
+# On closing the app
+@app.teardown_appcontext
+def close_connection(exception):
+    chat_db.close()
+    search_db.close()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
