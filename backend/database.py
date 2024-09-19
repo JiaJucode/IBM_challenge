@@ -1,6 +1,5 @@
 import sqlite3
 
-
 class Database:
     _instance = None
 
@@ -89,14 +88,37 @@ class ChatsDatabase(Database):
 
         return chat_id
 
+
     def get_chat(self, chat_id):
+        '''
+        Get chat and all its messages by chat ID.
+        '''
+
+        # Get chat
         self.cursor.execute('''
             SELECT * FROM Chats WHERE id = ?;
         ''', (chat_id,))
         chat = self.cursor.fetchone()
-        return chat
 
+        if chat is None:
+            return {'chat': None, 'messages': None}
+        
+        # Get messages
+        self.cursor.execute('''
+            SELECT role, content, timestamp
+            FROM Messages WHERE chat_id = ?
+            ORDER BY timestamp ASC;
+        ''', (chat_id,))
+        messages = self.cursor.fetchall()
+
+        return {'chat': chat, 'messages': messages}
+
+        
     def get_chats(self):
+        '''
+        Get high level info for all chats.
+        Returns a list of chat informations
+        '''
         self.cursor.execute('''
             SELECT * FROM Chats;
         ''')
@@ -115,15 +137,6 @@ class ChatsDatabase(Database):
         message_id = self.cursor.lastrowid
 
         return message_id
-
-    def get_chat_messages(self, chat_id):
-        self.cursor.execute('''
-            SELECT * FROM Messages WHERE chat_id = ?
-            ORDER BY timestamp ASC;
-        ''', (chat_id,))
-        messages = self.cursor.fetchall()
-
-        return messages
 
 
 class SearchResponseDatabase(Database):
@@ -184,7 +197,7 @@ if __name__ == "__main__":
     # chat_db.add_message(chat_id, role="user", content="user message 1", commit=False)
     # chat_db.add_message(chat_id, role="assistant", content="assistant message 1", commit=False)
 
-    # messages = chat_db.get_chat_messages(chat_id=chat_id)
+    # messages = chat_db.get_chat_history(chat_id=chat_id)
     # print("Fetched messages:", messages)
 
     # chat_db.create_chat(search_query="bar", summarized_search_results="bar baz foo")
@@ -212,7 +225,7 @@ if __name__ == "__main__":
         chat_db.add_message(chat_id, role="assistant",
                             content="assistant message 1")
 
-        messages = chat_db.get_chat_messages(chat_id=chat_id)
+        messages = chat_db.get_chat_history(chat_id=chat_id)
         print("Fetched messages:", messages)
 
         chat_db.create_chat(search_query="bar",
