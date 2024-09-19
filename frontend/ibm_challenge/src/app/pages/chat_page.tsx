@@ -24,16 +24,16 @@ const ChatPage = () => {
     const [chatMessagesLoading, setChatMessagesLoading] = useState(false);
 
     useEffect(() => {
-        // fetch and setCHatBoxs
-        fetch('http://localhost:5000/api/ChatHistory?user_ID=1')
+        // Fetch chat list from backend
+        fetch('http://localhost:5000/api/chats')
             .then(response => response.json())
-            .then((data: { chat_ID: number; chat_name: string }[]) => {
+            .then((data: { id: number; search_query: string; summarized_search_results: string }[]) => {
                 let tempChatBoxs: {[id: number]: ChatBox} = {};
                 data.forEach((chat) => {
                     tempChatBoxs = {
                         ...tempChatBoxs,
-                        [chat.chat_ID]: {
-                            name: chat.chat_name,
+                        [chat.id]: {
+                            name: chat.search_query,
                             messages: []
                         }
                     }
@@ -53,13 +53,13 @@ const ChatPage = () => {
         else {
             if (currentChat !== null) {
                 if (chatBoxs[currentChat].messages.length === 0) {
-                    // fetch and set messages
-                    fetch(`http://localhost:5000/api/ChatHistory?chat_ID=${currentChat}`)
+                    // Fetch chat messages for the selected chat
+                    fetch(`http://localhost:5000/api/chat/${currentChat}`)
                         .then(response => response.json())
-                        .then((data: { chat_history: string }) => {
-                            if (chatBoxs[currentChat].messages.length === 0 && data.chat_history.length > 0) {
+                        .then((data: { chat: { search_query: string }; messages: { role: string; content: string }[] }) => {
+                            if (data.messages.length > 0) {
                                 setChatBoxs((prevChatBoxs) => {
-                                    prevChatBoxs[currentChat].messages = JSON.parse(data.chat_history);
+                                    prevChatBoxs[currentChat].messages = data.messages.map(m => m.content);
                                     return prevChatBoxs;
                                 });
                                 setChatMessagesLoading(false);
@@ -86,7 +86,6 @@ const ChatPage = () => {
 
     const sendRequest = () => {
         setReplyWaiting(true);
-        // // update frontend
         if (currentChat !== null) {
             setChatBoxs((prevChatBoxs) => {
                 const newChatBoxs = prevChatBoxs;
@@ -95,14 +94,14 @@ const ChatPage = () => {
             });
         }
 
-        // update backend with the new message
-        fetch('http://localhost:5000/api/AIResponse', {
+        // Send the new message to backend and get AI response
+        fetch('http://localhost:5000/api/ai_response', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                chat_ID: currentChat,
+                chat_id: currentChat,  // Updated key to match backend
                 message: message
             })
         }).then(response => response.json())
@@ -116,13 +115,17 @@ const ChatPage = () => {
                 }
                 setReplyWaiting(false);
             })
+            .catch((error) => {
+                console.error('Error:', error);
+                setReplyWaiting(false);
+            });
     }
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
         if (event.key === 'Enter' && message.length && !event.shiftKey && !event.ctrlKey) {
             sendRequest();
             setMessage('');
-            event.preventDefault()
+            event.preventDefault();
         }
     }
 
@@ -142,7 +145,7 @@ const ChatPage = () => {
                             sx={{ width: '100%', height: '100%' }}>
                             {Object.keys(chatBoxs).map((chatID: string) => (
                                 <Grid key={chatID} size={12} sx={{ width: '100%' }}>
-                                    <Button sx={{ width: '100%'}} onClick={() => handleSelectChat(Number(chatID))}>
+                                    <Button sx={{ width: '100%' }} onClick={() => handleSelectChat(Number(chatID))}>
                                         <Typography variant="h5" sx={{ textAlign: 'center' }} color='text.primary'>
                                             {chatBoxs[Number(chatID)].name}
                                         </Typography>
@@ -153,80 +156,72 @@ const ChatPage = () => {
                         : null}
                     </Box>
                 </Grid>
-                    <Grid key={"contents"} size={10}>
-                        <Box
-                            sx = {{
-                                backgroundColor: 'primary.main',
-                                width: '100%',
-                                height: '100dvh',
-                                paddingBottom: 7,
-                                overflowY: 'auto'
-                            }}>
-                            {currentChat !== null && !chatMessagesLoading ?
-                                <div>
-                                    <Stack spacing={2} direction="column" alignItems="center">
-                                        {chatBoxs[currentChat].messages.map((message, index) => (
-                                            <Box
-                                                key={index}
-                                                sx={{
-                                                    justifyContent: index % 2 === 0 ? 'flex-end' : 'flex-start',
-                                                    display: 'flex',
-                                                    width: '70%',
-                                                    padding: 2,
-                                                }}
-                                            >
-                                                {index % 2 === 1 ? (
-                                                    <AssistantIcon sx={{marginLeft:'-5%', padding:1, fontSize:50}}/>
-                                                ) : null}
-                                                <Typography variant='h5'>
-                                                    {message}
-                                                </Typography>
-                                            </Box>
-                                        ))}
-                                    </Stack>
-                                    <div ref={chatBottomRef} />
-                                    <TextField variant='outlined' multiline fullWidth value={message} 
-                                        disabled={replyWaiting}
-                                        onKeyDown={(e) => handleKeyDown(e)}
-                                        onChange={(e) => setMessage(e.target.value)}
-                                        slotProps={{
-                                            input: {
-                                                endAdornment: (
-                                                <InputAdornment position="end">
-                                                    <IconButton onClick={sendRequest}>
-                                                        <SearchIcon sx={{ color: 'white' }}/>
-                                                    </IconButton>
-                                                </InputAdornment>
-                                                )
-                                            }
-                                        }}
-                                        sx={{
-                                            position: 'fixed',
-                                            bottom: 10, width: '60%',
-                                            justifyContent: 'center',
-                                            opacity: 0.99,
-                                            marginLeft: '10%',
+                <Grid key={"contents"} size={10}>
+                    <Box
+                        sx={{
+                            backgroundColor: 'primary.main',
+                            width: '100%',
+                            height: '100dvh',
+                            paddingBottom: 7,
+                            overflowY: 'auto'
+                        }}>
+                        {currentChat !== null && !chatMessagesLoading ?
+                            <div>
+                                <Stack spacing={2} direction="column" alignItems="center">
+                                    {chatBoxs[currentChat].messages.map((message, index) => (
+                                        <Box
+                                            key={index}
+                                            sx={{
+                                                justifyContent: index % 2 === 0 ? 'flex-end' : 'flex-start',
+                                                display: 'flex',
+                                                width: '70%',
+                                                padding: 2,
+                                            }}
+                                        >
+                                            {index % 2 === 1 ? (
+                                                <AssistantIcon sx={{ marginLeft: '-5%', padding: 1, fontSize: 50 }} />
+                                            ) : null}
+                                            <Typography variant='h5'>
+                                                {message}
+                                            </Typography>
+                                        </Box>
+                                    ))}
+                                </Stack>
+                                <div ref={chatBottomRef} />
+                                <TextField variant='outlined' multiline fullWidth value={message} 
+                                    disabled={replyWaiting}
+                                    onKeyDown={(e) => handleKeyDown(e)}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton onClick={sendRequest}>
+                                                    <SearchIcon sx={{ color: 'white' }} />
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
+                                    }}
+                                    sx={{
+                                        position: 'fixed',
+                                        bottom: 10, width: '60%',
+                                        justifyContent: 'center',
+                                        opacity: 0.99,
+                                        marginLeft: '10%',
+                                        borderRadius: 7,
+                                        backgroundColor: 'primary.light',
+                                        alignItems: 'center',
+                                        '& .MuiInputBase-input': {
+                                            fontSize: 25, // Apply font size to the input text
+                                        },
+                                        '& .MuiOutlinedInput-root.Mui-disabled': {
+                                            backgroundColor: 'primary.main',
                                             borderRadius: 7,
-                                            backgroundColor: 'primary.light',
-                                            alignItems: 'center',
-                                            '& .MuiInputBase-input': {
-                                                fontSize: 25, // Apply font size to the input text
-                                            },
-                                            '& .MuiOutlinedInput-root.Mui-disabled': {
-                                                backgroundColor: 'primary.main',
-                                                borderRadius: 7,
-                                            }
-                                        }}/>
-                                    <InputAdornment position="end">
-                                        <IconButton>
-                                            <SearchIcon />
-                                        </IconButton>
-                                    </InputAdornment>
-                                </div>
-                            : null}
-                        </Box>
-
-                    </Grid>
+                                        }
+                                    }}/>
+                            </div>
+                        : null}
+                    </Box>
+                </Grid>
             </Grid>
         </div>
     );
