@@ -1,4 +1,5 @@
 import sqlite3
+from backend.utils.language_model import sentence_similarity
 
 class Database:
     _instance = None
@@ -50,13 +51,22 @@ class Database:
 class ChatsDatabase(Database):
 
     def _create_tables(self):
+         # Search response table
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS Search (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                search_term TEXT,
+                frequency Integer,
+                summarized_response TEXT
+            );
+        ''')
 
         # Chats table
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS Chats (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                search_query TEXT,
-                summarized_search_results TEXT
+                title TEXT,
+                searches TEXT
             );
         ''')
 
@@ -74,20 +84,30 @@ class ChatsDatabase(Database):
 
         self.connection.commit()
 
-    def create_chat(self, search_query, summarized_search_results, commit=True):
-
+    def create_chat(self, title: str, commit=True):
         self.cursor.execute('''
-            INSERT INTO Chats (search_query, summarized_search_results)
-            VALUES (?, ?);
-        ''', (search_query, summarized_search_results))
-
+            INSERT INTO Chats (title)
+            VALUES (?,);
+        ''', (title,))
         if commit:
             self.connection.commit()
 
         chat_id = self.cursor.lastrowid
-
         return chat_id
-
+    
+    def update_chat(self, chat_id, summarized_search_results=None, commit=True):
+        if summarized_search_results:
+            # Modify search results and increment frequency
+            self.cursor.execute('''
+                Update Chats set frequency=frequency+1, summarized_search_results=? where id=? 
+            ''', (summarized_search_results, chat_id))
+        else:
+            # Increment results only
+            self.cursor.execute('''
+                Update Chats set frequency=frequency+1 where id=? 
+            ''', (chat_id))
+        if commit:
+            self.connection.commit()
 
     def get_chat(self, chat_id):
         '''
@@ -102,7 +122,7 @@ class ChatsDatabase(Database):
 
         if chat is None:
             return {'chat': None, 'messages': None}
-        
+
         # Get messages
         self.cursor.execute('''
             SELECT role, content, timestamp
@@ -124,6 +144,33 @@ class ChatsDatabase(Database):
         ''')
         chats = self.cursor.fetchall()
         return chats
+    
+    def recent_chats(self, num):
+        '''Get an overview of the latest n chats
+        '''
+        self.cursor.execute('''
+            SELECT id, title FROM Chats order by id DESC limit ?;
+        ''', (num,))
+        chats = self.cursor.fetchall()
+        return chats
+    
+    def similar_chats(self, title:str, similar_threshold=0.9):
+        '''Find through all chat titles similar to input message
+        '''
+        chats = self.get_chats()
+        similar_scores = sentence_similarity(title, [chat[1] for chat in chats])
+        similar_chats = []
+        for c in range(len(chats)):
+            sim = similar_scores[c]
+            if sim >= similar_threshold:
+                similar_chats.append((chats[c], sim))
+        similar_chats.sort(key=lambda entry: entry[1], reverse=True)
+        return similar_chats
+    
+    def similar_search(self, term:str, similar_threshold=0.9):
+        '''Find through all chat titles similar to input message
+        '''
+        pass
 
     def add_message(self, chat_id, role, content, commit=True):
         self.cursor.execute('''
@@ -137,45 +184,6 @@ class ChatsDatabase(Database):
         message_id = self.cursor.lastrowid
 
         return message_id
-
-
-class SearchResponseDatabase(Database):
-
-    def _create_tables(self):
-
-        # Search Responses table
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS Search (
-                search_term TEXT PRIMARY KEY,
-                frequency INTEGER,
-                response TEXT
-            );
-        ''')
-        self.connection.commit()
-
-    def add_search(self, term, response=""):
-        entry = self.cursor.execute('''
-            SELECT frequency, response FROM Search WHERE search_term = ?;
-        ''', (term,)).fetchone()
-
-        if entry and entry[0]:
-            # cache hit, increment frequency and return cached response
-            self.cursor.execute('''
-                UPDATE Search SET frequency = frequency + 1 WHERE search_term = ?;
-            ''', (term,))
-            updated = True
-        else:
-            # no matching history, create new one
-            self.cursor.execute('''
-                INSERT INTO Search (search_term, frequency, response)
-                VALUES (?, ?, ?);
-            ''', (term, 1, response))
-            updated = False
-
-        self.connection.commit()
-
-        return updated
-
 
 # Test database without persisting data
 if __name__ == "__main__":

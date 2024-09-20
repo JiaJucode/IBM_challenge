@@ -1,12 +1,11 @@
 ## Flask APIs. Return JSON data
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, redirect
 from flask_cors import CORS
-from database import ChatsDatabase, SearchResponseDatabase
+from database import ChatsDatabase
 import json
 
 app = Flask(__name__)
 chat_db = ChatsDatabase()
-search_db = SearchResponseDatabase()
 
 def get_ai_response(message):
     return "I am a bot"
@@ -17,8 +16,35 @@ CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
 @app.route('/api/hello', methods=['GET'])
 def hello():
-    return jsonify({'message': 'Hello World!'})
+    '''Welcome page showing recent chats and include a text box (form input) to begin a chat
+    Return format:
+    {
+        'chats': [
+            {
+                'id': <chat_id>,
+                'title': <chat_title>
+            }
+        ],
+    }
+    '''
+    chats = chat_db.recent_chats()
+    return jsonify(chats)
 
+@app.route('/api/start', methods=['GET'])
+def create_chat():
+    '''
+     Request format:
+    {
+        'initial_message': <message>
+    }
+    '''
+    title = request.form.get("initial_message")
+    if similar := chat_db.similat_chats(title):
+        # Show user similar chats if some are similar enough
+        return jsonify(similar)
+    else:
+        new_id = chat_db.create_chat(title)
+        return redirect(f'/api/chat/{new_id}')
 
 @app.route('/api/chat/<int:chat_id>', methods=['GET'])
 def get_chat(chat_id):
