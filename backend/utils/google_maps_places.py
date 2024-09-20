@@ -20,7 +20,7 @@ def earth_distance(lon1, lat1, lon2, lat2):
     ang = 2*np.arcsin(min(np.sqrt(rise2+run2)/2, 1))
     return EARTH_RADIUS * ang
 
-class TextSearch:
+class MapsTextSearch:
     def __init__(self) -> None:
         self.query = ""
         self.masks = ["displayName", "formattedAddress"]
@@ -33,10 +33,10 @@ class TextSearch:
             all_masks += f"places.{mask},"
         headers["X-Goog-FieldMask"] = all_masks[:-1]
         resp = requests.post(PLACES_URL, data=json.dumps(data), headers=headers)
-        print(resp.text)
+        return resp.text
 
 if __name__ == "__main__":
-    ts = TextSearch()
+    ts = MapsTextSearch()
     ts.query = "mexican restaurant cambridge"
     ts.get_response()
     # print(earth_distance(0, 35, 110, 55))

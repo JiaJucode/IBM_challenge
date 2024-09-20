@@ -3,6 +3,21 @@ from textwrap import dedent
 from ai_config import get_ai_response
 from helpers import markdown_to_html
 
+def create_chat_title(query: str) -> str:
+    system_prompt = dedent(
+        """You are a helpsul secretary, and your role is to help users summarize and take notes of what they said. Users want 
+        their words to be summarized into shorter forms like newspaper headlines, which is helpful for their future reference.
+        To achieve the goal, you need to know the topic or academic field related to what the user says. You don't need to provide
+        any answer or inject your own opinion.
+        """
+    )
+    user_prompt = dedent(
+        f"""I talked to an expert about this issue: "{query}". Please summarize my issue, provide only the summary you made.
+        """
+    )
+    response = get_ai_response(system_prompt=system_prompt, messages=[{"role": "user", "content": user_prompt}])
+    return response
+
 def process_search_query(query: str) -> str:
     '''
     Modifies search query to be optimized for Google Search

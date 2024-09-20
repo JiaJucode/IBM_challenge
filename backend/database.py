@@ -1,5 +1,5 @@
 import sqlite3
-from backend.utils.language_model import sentence_similarity
+from backend.utils.language_model import sentence_similarity    
 
 class Database:
     _instance = None
@@ -66,7 +66,7 @@ class ChatsDatabase(Database):
             CREATE TABLE IF NOT EXISTS Chats (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT,
-                searches TEXT
+                search_list TEXT
             );
         ''')
 
@@ -122,6 +122,9 @@ class ChatsDatabase(Database):
 
         if chat is None:
             return {'chat': None, 'messages': None}
+        else:
+            keys = ["id", "title"]
+            chat = {keys[i]: chat[i] for i in range(len(keys))}
 
         # Get messages
         self.cursor.execute('''
@@ -130,39 +133,49 @@ class ChatsDatabase(Database):
             ORDER BY timestamp ASC;
         ''', (chat_id,))
         messages = self.cursor.fetchall()
-
+        keys = ["role", "content", "timestamp"]
+        messages = {keys[i]: messages[i] for i in range(len(keys))}
         return {'chat': chat, 'messages': messages}
-
         
-    def get_chats(self):
+    def get_chats(self, num=0) -> list[dict]:
         '''
-        Get high level info for all chats.
+        Get high level info for all chats or recent n chats.
         Returns a list of chat informations
         '''
-        self.cursor.execute('''
-            SELECT * FROM Chats;
-        ''')
-        chats = self.cursor.fetchall()
-        return chats
-    
-    def recent_chats(self, num):
-        '''Get an overview of the latest n chats
-        '''
-        self.cursor.execute('''
-            SELECT id, title FROM Chats order by id DESC limit ?;
-        ''', (num,))
-        chats = self.cursor.fetchall()
+        if not num:
+            # Return all chats
+            self.cursor.execute('''
+                SELECT * FROM Chats;
+            ''')
+        else:
+            # Return recent {num} chats
+            self.cursor.execute('''
+                SELECT * FROM Chats order by id DESC limit ?;
+            ''', (num,))
+        entries = self.cursor.fetchall()
+        chat_keys, search_keys = ["id", "title"], ["id", "search_term"]
+        chats = []
+        for entry in entries:
+            if entry[2]:
+                search_ids = entry[2].split(",")
+                self.cursor.execute(f'''
+                    Select id, search_term from Search where id in {tuple(search_ids)}
+                ''')
+                searches = self.cursor.fetchall()
+                chat = {chat_keys[i]: entry[i] for i in range(len(chat_keys))}
+                chat["search_list"] = [{search_keys[i]: search[i] for i in range(len(search_keys))} for search in searches]
         return chats
     
     def similar_chats(self, title:str, similar_threshold=0.9):
         '''Find through all chat titles similar to input message
         '''
         chats = self.get_chats()
-        similar_scores = sentence_similarity(title, [chat[1] for chat in chats])
+        similar_scores = sentence_similarity(title, [chat["title"] for chat in chats])
         similar_chats = []
         for c in range(len(chats)):
             sim = similar_scores[c]
             if sim >= similar_threshold:
+                chats[c]["similarity"] = sim
                 similar_chats.append((chats[c], sim))
         similar_chats.sort(key=lambda entry: entry[1], reverse=True)
         return similar_chats

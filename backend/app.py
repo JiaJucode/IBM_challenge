@@ -2,6 +2,8 @@
 from flask import Flask, jsonify, request, redirect
 from flask_cors import CORS
 from database import ChatsDatabase
+import utils.ai as bot
+from utils.google_maps_places import MapsTextSearch
 import json
 
 app = Flask(__name__)
@@ -38,25 +40,31 @@ def create_chat():
         'initial_message': <message>
     }
     '''
-    title = request.form.get("initial_message")
+    inimesg = request.form.get("initial_message")
+    title = inimesg
+    # Summarize user initial query if it's longer than 200 characters
+    if len(title) > 200:
+        title = bot.create_chat_title(title)
+    
+    # Prompt user similar chats if the new title is similar enough to some existing ones
     if similar := chat_db.similat_chats(title):
-        # Show user similar chats if some are similar enough
         return jsonify(similar)
+    # Otherwise, create a new chat and redirect to the chat page with user's initial message
     else:
         new_id = chat_db.create_chat(title)
+        chat_db.add_message(new_id, 'user', inimesg)
         return redirect(f'/api/chat/{new_id}')
 
 @app.route('/api/chat/<int:chat_id>', methods=['GET'])
-def get_chat(chat_id):
+def load_chat(chat_id):
     '''
-    Get a chat and its messages by chat ID.
-
+    Get a chat and its messages by chat ID. If the most recent message is 'user', add to request 
+        'add_query=false' and 'message=<most recent message>'
     Return format:
     {
         'chat': {
             'id': <chat_id>,
-            'search_query': <search_query>,
-            'summarized_search_results': <summarized_search_results>
+            'title': <chat_title>,
         },
         'messages': [
             {
@@ -70,28 +78,8 @@ def get_chat(chat_id):
     chat = chat_db.get_chat(chat_id)
     return jsonify(chat)
 
-
-@app.route('/api/chats', methods=['GET'])
-def get_chats():
-    '''
-    Get high level info for all chats.
-
-    Return format:
-        [
-            {
-                'id': <chat_id>,
-                'search_query': <search_query>,
-                'summarized_search_results': <summarized_search_results>
-            },
-            ...
-        ]
-    '''
-    chats = chat_db.get_chats()
-    return jsonify(chats)
-
-
 @app.route('/api/ai_response', methods=['POST'])
-def get_ai_response():
+def get_response():
     '''
     Gets response for user message from AI, and adds both new messages to the chat history.
 
@@ -99,11 +87,8 @@ def get_ai_response():
     {
         'chat_id': <chat_id>,
         'message': <message>
-    }
-
-    Response format:
-    {
-        'response': <response>
+        'add_query': <true | false>
+        'mode': <Google search | Google maps>
     }
     '''
 
@@ -111,24 +96,60 @@ def get_ai_response():
     request_data = request.get_json()
     chat_id = request_data.get('chat_id')
     message = request_data.get('message')
+    mode = request_data.get('mode')
 
     # Attempt to get AI response
     try:
+        search_terms = bot.process_search_query(message)
+        if mode == "Google maps":
+            maps_tool = MapsTextSearch()
+            all_places = []
+            for term in search_terms.split(";"):
+                maps_tool.query = term
+                places = json.dumps(maps_tool.get_response())
+                all_places.append(places)
+        else:
+            pass
+
         response = get_ai_response(message)
     except Exception as e:
         return jsonify({'error': f"Error getting AI response: {e}"}), 500
     
     # Save messages
-    chat_db.add_message(chat_id=chat_id, role='user', content=message)
+    if request_data.get('add_query') == "true":
+        chat_db.add_message(chat_id=chat_id, role='user', content=message)
     chat_db.add_message(chat_id=chat_id, role='assistant', content=response)
 
-    return jsonify({'response': response})
+    return redirect(f'/api/chat/{chat_id}')
     
+@app.route('/api/chats', methods=['GET'])
+def get_chats():
+    '''
+    Get high level info for all chats, including AI generated search terms contained
+
+    Return format:
+        [
+            {
+                'id': <chat_id>,
+                'title': <chat_title>,
+                'search_list': [
+                    {
+                        'id': <search_id>
+                        'search_term': <search_term>
+                    }
+                    ...
+                ]
+            },
+            ...
+        ]
+    '''
+    chats = chat_db.get_chats()
+    return jsonify(chats)
+
 # On closing the app
 @app.teardown_appcontext
 def close_connection(exception):
     chat_db.close()
-    search_db.close()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
