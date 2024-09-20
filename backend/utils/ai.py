@@ -3,15 +3,6 @@ from textwrap import dedent
 from ai_config import get_ai_response
 from helpers import markdown_to_html
 
-
-def paraphrase_lookup(query: str, sentences: list[str]):
-    '''TODO
-    Find through a set of sentences, which one means exactly the same as the input sentence?
-    e.g. Cook dinner by myself = Prepare dinner on my own
-    May use Transforers or other light-weight models
-    '''
-    pass
-
 def process_search_query(query: str) -> str:
     '''
     Modifies search query to be optimized for Google Search
@@ -28,7 +19,7 @@ def process_search_query(query: str) -> str:
     )
     user_prompt = dedent(
         f"""I'm now searching the Internet to find some information or solution about this: "{query}". Please summarize 
-        my needs into search terms that contain fewer words and cover all my requirements. 
+        my needs into search terms that contain no more words and cover all my requirements. 
         If original input is too long, then create a set of search terms with each covering part of my needs, separating each term 
         by semi-colon. Otherwise, write one search term with no semi-colon. No need to be grammatically correct.
         """

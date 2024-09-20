@@ -3,3 +3,5 @@ flask-cors
 python-dotenv
 ibm-watsonx-ai
 markdown
+transformers
+torch
