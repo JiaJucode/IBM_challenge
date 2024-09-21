@@ -1,7 +1,7 @@
 
 from textwrap import dedent
-from ai_config import get_ai_response
-from helpers import markdown_to_html
+from utils.ai_config import get_ai_response
+from utils.helpers import markdown_to_html
 
 def create_chat_title(query: str) -> str:
     system_prompt = dedent(
