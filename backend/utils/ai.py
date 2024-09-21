@@ -3,7 +3,7 @@ from textwrap import dedent
 # from utils.ai_config import get_ai_response
 from utils.helpers import markdown_to_html
 
-def get_ai_response(b1, b2):
+def get_ai_response(system_prompt, messages):
     return "this is the response from AI"
 
 def create_chat_title(query: str) -> str:
@@ -55,13 +55,21 @@ def summarize_search_results(search_query: str, search_results: list) -> str:
         - content
     '''
     
+    # system_prompt = dedent(
+    #     """You are an expert content curator specializing in extracting meaningful information and summarizing search results.
+    #     You are able to read through multiple search results, understand them, analyze them individually and overall for accuracy, reliability, and relevance, and distill
+    #     the most important information into a concise summary in markdown format. The goal of your distillation is to provide the user with a quick and accurate overview of
+    #     their search query, such that they can quickly understand without having to read through all of them and waste time in finding most relevant and accurate information.
+    #     You recieve the user's search query and a list of search results where each result is a dictionary with "title", "link", and "content" keys. 
+    #     Your response markdown should be well formatted with various appropriate elements like headings, tables, lists, etc. to make it easy to read and understand.
+    #     """
+    # )
     system_prompt = dedent(
         """You are an expert content curator specializing in extracting meaningful information and summarizing search results.
         You are able to read through multiple search results, understand them, analyze them individually and overall for accuracy, reliability, and relevance, and distill
-        the most important information into a concise summary in markdown format. The goal of your distillation is to provide the user with a quick and accurate overview of
+        the most important information into a concise summary. The goal of your distillation is to provide the user with a quick and accurate overview of
         their search query, such that they can quickly understand without having to read through all of them and waste time in finding most relevant and accurate information.
         You recieve the user's search query and a list of search results where each result is a dictionary with "title", "link", and "content" keys. 
-        Your response markdown should be well formatted with various appropriate elements like headings, tables, lists, etc. to make it easy to read and understand.
         """
     )
     user_prompt = dedent(

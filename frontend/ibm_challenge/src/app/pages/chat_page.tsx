@@ -14,9 +14,11 @@ interface ChatBox {
     messages: string[];
 }
 
+// TODO create default new chat page
+
 const ChatPage = () => {
     const [chatBoxs, setChatBoxs] = useState<{[id: number]: ChatBox}>({});
-    const [currentChat, setCurrentChat] = useState<number | null>(null);
+    const [currentChat, setCurrentChat] = useState<number>(-1);
     const [message, setMessage] = useState('');
     const chatBottomRef = useRef<HTMLDivElement>(null);
     const [replyWaiting, setReplyWaiting] = useState(false);
@@ -25,20 +27,23 @@ const ChatPage = () => {
 
     useEffect(() => {
         // Fetch chat list from backend
-        fetch('http://localhost:5000/api/chats')
+        fetch('http://localhost:5000/api/hello')
             .then(response => response.json())
-            .then((data: { id: number; search_query: string; summarized_search_results: string }[]) => {
-                let tempChatBoxs: {[id: number]: ChatBox} = {};
-                data.forEach((chat) => {
-                    tempChatBoxs = {
-                        ...tempChatBoxs,
-                        [chat.id]: {
-                            name: chat.search_query,
-                            messages: []
-                        }
-                    }
-                });
-                setChatBoxs(tempChatBoxs);
+            .then((data: {chats: { chat_id: number; title: string}[]}) => {
+                console.log(data);
+                if (data.chats.length !== 0) {
+                    setChatBoxs((prevChatBoxs) => {
+                        const newChatBoxs = prevChatBoxs;
+                        data.chats.forEach((chat) => {
+                            newChatBoxs[chat.chat_id] = {
+                                name: chat.title,
+                                messages: []
+                            };
+                        });
+                        return newChatBoxs;
+                    });
+                }
+                console.log(chatBoxs);
                 setChatListLoading(false);
             })
             .catch((error) => {
@@ -51,22 +56,24 @@ const ChatPage = () => {
             chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
         else {
-            if (currentChat !== null) {
+            if (currentChat !== -1) {
                 if (chatBoxs[currentChat].messages.length === 0) {
                     // Fetch chat messages for the selected chat
-                    fetch(`http://localhost:5000/api/chat/${currentChat}`)
+                    console.log("fetching chat messages for chat id: " + currentChat);
+                    fetch(`http://localhost:5000/api/chat?chat_id=${currentChat}`)
                         .then(response => response.json())
-                        .then((data: { chat: { search_query: string }; messages: { role: string; content: string }[] }) => {
-                            if (data.messages.length > 0) {
-                                setChatBoxs((prevChatBoxs) => {
-                                    prevChatBoxs[currentChat].messages = data.messages.map(m => m.content);
-                                    return prevChatBoxs;
-                                });
-                                setChatMessagesLoading(false);
-                            }
+                        .then((data: {content: string, role: string}[]) => {
+                            console.log(data);
+                            setChatBoxs((prevChatBoxs) => {
+                                const newChatBoxs = prevChatBoxs;
+                                newChatBoxs[currentChat].messages = data.map((message) => message.content);
+                                return newChatBoxs;
+                            });
+                            setChatMessagesLoading(false);
                         })
                         .catch((error) => {
                             console.error('Error:', error);
+                            setChatMessagesLoading(false);
                         });
                 }
             }
@@ -80,45 +87,78 @@ const ChatPage = () => {
     }, [replyWaiting]);
 
     const handleSelectChat = (chatID: number) => {
-        setCurrentChat(chatID);
-        setChatMessagesLoading(true);
+        if (chatID < -1) {
+            console.log("selected chat id is invalid");
+        }
+        else {
+            setCurrentChat(chatID);
+            setChatMessagesLoading(chatID !== -1);
+        }
     }
 
     const sendRequest = () => {
         setReplyWaiting(true);
-        if (currentChat !== null) {
+
+        if (currentChat === -1) {
+            // send /api/start request
+            fetch('http://localhost:5000/api/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    initial_message: message
+                })
+            }).then(response => response.json())
+                .then((data: { chat_id: number, title: string, response: string}) => {
+                    if (data.response.length > 0) {
+                        setChatBoxs((prevChatBoxs) => {
+                            const newChatBoxs = prevChatBoxs;
+                            newChatBoxs[data.chat_id] = {
+                                name: data.title,
+                                messages: [message, data.response]
+                            };
+                            return newChatBoxs;
+                        });
+                        setCurrentChat(data.chat_id);
+                    }
+                    setReplyWaiting(false);
+                })
+        }
+        else {
             setChatBoxs((prevChatBoxs) => {
                 const newChatBoxs = prevChatBoxs;
                 newChatBoxs[currentChat].messages.push(message);
                 return newChatBoxs;
             });
-        }
 
-        // Send the new message to backend and get AI response
-        fetch('http://localhost:5000/api/ai_response', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                chat_id: currentChat,  // Updated key to match backend
-                message: message
-            })
-        }).then(response => response.json())
-            .then((data: { response: string }) => {
-                if (data.response.length > 0 && currentChat !== null) {
-                    setChatBoxs((prevChatBoxs) => {
-                        const newChatBoxs = prevChatBoxs;
-                        newChatBoxs[currentChat].messages.push(data.response);
-                        return newChatBoxs;
-                    });
-                }
-                setReplyWaiting(false);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                setReplyWaiting(false);
-            });
+            // send /api/ai_response request
+            fetch('http://localhost:5000/api/ai_response', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: currentChat,
+                    message: message
+                })
+            }).then(response => response.json())
+                .then((data: { response: string }) => {
+                    if (data.response.length > 0 && currentChat !== -1) {
+                        setChatBoxs((prevChatBoxs) => {
+                            const newChatBoxs = prevChatBoxs;
+                            newChatBoxs[currentChat].messages.push(data.response);
+                            return newChatBoxs;
+                        });
+                    }
+                    setReplyWaiting(false);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    setReplyWaiting(false);
+                });
+            
+        }
     }
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -140,20 +180,29 @@ const ChatPage = () => {
                             height: '100dvh',
                         }}
                     >
-                        {!chatListLoading ?
                         <Grid container spacing={2} direction="column" alignItems="center" padding={1} 
                             sx={{ width: '100%', height: '100%' }}>
-                            {Object.keys(chatBoxs).map((chatID: string) => (
-                                <Grid key={chatID} size={12} sx={{ width: '100%' }}>
-                                    <Button sx={{ width: '100%' }} onClick={() => handleSelectChat(Number(chatID))}>
-                                        <Typography variant="h5" sx={{ textAlign: 'center' }} color='text.primary'>
-                                            {chatBoxs[Number(chatID)].name}
-                                        </Typography>
-                                    </Button>
-                                </Grid>
-                            ))}
+                            <Grid key={-1} size={12} sx={{ width: '100%' }}>
+                                <Button sx={{ width: '100%' }} onClick={() => handleSelectChat(-1)}>
+                                    <Typography variant="h5" sx={{ textAlign: 'center' }} color='text.primary'>
+                                        New Chat
+                                    </Typography>
+                                </Button>
+                            </Grid>
+                            {!chatListLoading ?
+                                <div>
+                                {Object.keys(chatBoxs).map((chatID: string) => (
+                                    <Grid key={chatID} size={12} sx={{ width: '100%' }}>
+                                        <Button sx={{ width: '100%' }} onClick={() => handleSelectChat(Number(chatID))}>
+                                            <Typography variant="h5" sx={{ textAlign: 'center' }} color='text.primary'>
+                                                {chatBoxs[Number(chatID)].name}
+                                            </Typography>
+                                        </Button>
+                                    </Grid>)
+                                )}
+                                </div>
+                            : null}
                         </Grid>
-                        : null}
                     </Box>
                 </Grid>
                 <Grid key={"contents"} size={10}>
@@ -165,27 +214,31 @@ const ChatPage = () => {
                             paddingBottom: 7,
                             overflowY: 'auto'
                         }}>
-                        {currentChat !== null && !chatMessagesLoading ?
+                        {!chatMessagesLoading ?
                             <div>
                                 <Stack spacing={2} direction="column" alignItems="center">
-                                    {chatBoxs[currentChat].messages.map((message, index) => (
-                                        <Box
-                                            key={index}
-                                            sx={{
-                                                justifyContent: index % 2 === 0 ? 'flex-end' : 'flex-start',
-                                                display: 'flex',
-                                                width: '70%',
-                                                padding: 2,
-                                            }}
-                                        >
-                                            {index % 2 === 1 ? (
-                                                <AssistantIcon sx={{ marginLeft: '-5%', padding: 1, fontSize: 50 }} />
-                                            ) : null}
-                                            <Typography variant='h5'>
-                                                {message}
-                                            </Typography>
-                                        </Box>
-                                    ))}
+                                    {currentChat !== -1 ?
+                                        <div>
+                                            {chatBoxs[currentChat].messages.map((message, index) => (
+                                                <Box
+                                                    key={index}
+                                                    sx={{
+                                                        justifyContent: index % 2 === 0 ? 'flex-end' : 'flex-start',
+                                                        display: 'flex',
+                                                        width: '70%',
+                                                        padding: 2,
+                                                    }}
+                                                >
+                                                    {index % 2 === 1 ? (
+                                                        <AssistantIcon sx={{ marginLeft: '-5%', padding: 1, fontSize: 50 }} />
+                                                    ) : null}
+                                                    <Typography variant='h5'>
+                                                        {message}
+                                                    </Typography>
+                                                </Box>
+                                            ))}
+                                        </div>
+                                    : null}
                                 </Stack>
                                 <div ref={chatBottomRef} />
                                 <TextField variant='outlined' multiline fullWidth value={message} 

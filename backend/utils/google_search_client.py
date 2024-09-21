@@ -4,34 +4,38 @@ import os
 api_key = os.getenv("GOOGLE_API_KEY")
 search_engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID") 
 
-url = f"https://www.googleapis.com/customsearch/v1"
+url = f"https://www.googleapis.com/customsearch/v1?"
 
 def search(search_query):
-    params = f"key={api_key}&exactTerms={search_query}&cx={search_engine_id}&lr=lang_en&sort=date:d:s"
-    return requests.get(url + "?" + params).json()
+    params = f"key={api_key}&exactTerms={(search_query).replace(" ", "%20")}&cx={search_engine_id}&lr=lang_en&sort=date:d:s&start=1"
+    print("searching for: ", search_query)
+    return requests.get(url + params).json()
 
 def extract_content(search_query):
     results = search(search_query)
-    html_content = {}
+    contents = []
+    if "items" not in results:
+        print("error: no items in results")
+        print(results)
+        return {}
     for item in results["items"]:
         link = item["link"]
+        title = item["title"]
         # some websites may block the request
         try:
             html = requests.get(link, timeout=5)
         except requests.exceptions.Timeout:
             print("website: ", link, " Timeout")
-            return {}
+            continue
+        except Exception as e:
+            print("website: ", link, " Error: ", e)
+            continue
         if html.status_code != 200:
             print("website: ", link, " Error: ", html.status_code)
-            return {}
-        html_content[link] = html.text
-    return html_content
-    
-if __name__ == '__main__':
-    search_query = "how to solve a rubik's cube"
-    print(search(search_query))
-    print("-------\n\n\n")
-    print(extract_content(search_query))
+            continue
+        contents.append({"title": title, "content": html.text, "link": link})
+    return contents
+
 # print(json.dumps(search(request_builder()), indent=4))
 # example output:
 # {
