@@ -15,12 +15,35 @@ def get_ai_response(message):
 # Enable CORS for requests only to /api/* from frontend server
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
+@app.route('/api/login', methods=['GET'])
+def login():
+    '''Welcome page showing recent chats and include a text box (form input) to begin a chat
+    Request format:
+    {
+        'user_id': <id>
+        'user_name': <name>
+        'password': <credential>
+    }
+    '''
+    uid = request.form.get("user_id")
+    name = request.form.get("user_name")
+    pwd = request.form.get("password")
+    user = chat_db.login_register(uid, name, pwd)
+    if not user:
+        return jsonify({"message": "User ID not exists or password incorrect"})
+    else:
+        return redirect(f'/api/hello/{user}')
 
-@app.route('/api/hello', methods=['GET'])
+@app.route('/api/hello/<int:user_id>', methods=['GET'])
 def hello():
     '''Welcome page showing recent chats and include a text box (form input) to begin a chat
+    Request format:
+    {
+        user_id: <uid>
+    }
     Return format:
     {
+        'user_name': <user_name>
         'chats': [
             {
                 'id': <chat_id>,
@@ -29,17 +52,21 @@ def hello():
         ],
     }
     '''
-    chats = chat_db.recent_chats()
-    return jsonify(chats)
+    uid = request.get_json()["user_id"]
+    user_name = chat_db.get_username(uid)
+    chats = chat_db.recent_chats(uid)
+    return jsonify({'user_name': user_name, 'chats': chats})
 
-@app.route('/api/start', methods=['GET'])
+@app.route('/api/start/<int:user_id>', methods=['POST'])
 def create_chat():
     '''
      Request format:
     {
+        'user_id': <id>
         'initial_message': <message>
     }
     '''
+    uid = request.get_json()["user_id"]
     inimesg = request.form.get("initial_message")
     title = inimesg
     # Summarize user initial query if it's longer than 200 characters
@@ -47,7 +74,7 @@ def create_chat():
         title = bot.create_chat_title(title)
     
     # Prompt user with similar chats if the new title is close enough to some existing ones
-    if similar := chat_db.similar_chats(title):
+    if similar := chat_db.similar_chats(uid, title):
         '''
             Return format:
             [
@@ -70,7 +97,7 @@ def create_chat():
         return jsonify(similar)
     # Otherwise, create a new chat and redirect to the chat page with user's initial message
     else:
-        new_id = chat_db.create_chat(title)
+        new_id = chat_db.create_chat(uid, title)
         chat_db.add_message(new_id, 'user', inimesg)
         return redirect(f'/api/chat/{new_id}')
 
@@ -122,6 +149,7 @@ def get_response():
     # Get required parameters from request
     request_data = request.get_json()
     chat_id = request_data.get('chat_id')
+    uid = chat_db.chat_user(chat_id)
     message = request_data.get('message')
     mode = request_data.get('mode')
 
@@ -145,11 +173,11 @@ def get_response():
                 all_places.append(places)
 
             # TODO Search places on Google maps and summarize response
-            chat_db.add_search(search_terms, mode, response)
+            chat_db.add_search(uid, search_terms, mode, response)
 
         elif mode == "Google search":
             # TODO Search Google and summarize response
-            chat_db.add_search(search_terms, mode, response)
+            chat_db.add_search(uid, search_terms, mode, response)
 
         response = get_ai_response(message)
     except Exception as e:
@@ -166,7 +194,10 @@ def get_response():
 def get_chats():
     '''
     Get high level info for all chats, including AI generated search terms contained
-
+    Request format:
+    {
+        user_id: <id>
+    }
     Return format:
         [
             {
@@ -184,7 +215,8 @@ def get_chats():
             ...
         ]
     '''
-    chats = chat_db.get_chats()
+    uid = request.get_json()["user_id"]
+    chats = chat_db.get_chats(uid)
     return jsonify(chats)
 
 if __name__ == '__main__':

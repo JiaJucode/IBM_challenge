@@ -51,14 +51,25 @@ class Database:
 class ChatsDatabase(Database):
 
     def _create_tables(self):
-         # Search response table
+        # User credentials
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS Users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                credential TEXT
+            );
+        ''')
+
+        # Search response table
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS Search (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user Integer,
                 search_term TEXT,
                 mode TEXT CHECK(mode IN ('Google maps', 'Google search')),
                 frequency Integer,
                 summarized_response TEXT
+                FOREIGN KEY (user) REFERENCES Users (id)
             );
         ''')
 
@@ -66,8 +77,10 @@ class ChatsDatabase(Database):
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS Chats (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user Integer,
                 title TEXT,
                 search_list TEXT
+                FOREIGN KEY (user) REFERENCES Users (id)
             );
         ''')
 
@@ -85,11 +98,11 @@ class ChatsDatabase(Database):
 
         self.connection.commit()
 
-    def create_chat(self, title: str, commit=True):
+    def create_chat(self, uid, title: str, commit=True):
         self.cursor.execute('''
-            INSERT INTO Chats (title)
-            VALUES (?,);
-        ''', (title,))
+            INSERT INTO Chats (user, title)
+            VALUES (?,?);
+        ''', (uid, title))
         if commit:
             self.connection.commit()
 
@@ -163,8 +176,14 @@ class ChatsDatabase(Database):
         if commit:
             self.connection.commit()
         return search_list
-        
-    def get_chats(self, num=0) -> list[dict]:
+    
+    def chat_user(self, chat_id):
+         self.cursor.execute('''
+            Select user from Chats where id = ?;
+        ''', (chat_id, ))
+         return self.cursor.fetchone()[0]
+
+    def get_chats(self, uid, num=0) -> list[dict]:
         '''
         Get high level info for all chats or recent n chats.
         Returns a list of chat informations
@@ -172,13 +191,13 @@ class ChatsDatabase(Database):
         if not num:
             # Return all chats
             self.cursor.execute('''
-                SELECT * FROM Chats;
-            ''')
+                SELECT * FROM Chats where user = ?;
+            ''', (uid,))
         else:
             # Return recent {num} chats
             self.cursor.execute('''
-                SELECT * FROM Chats order by id DESC limit ?;
-            ''', (num,))
+                SELECT * FROM Chats where user = ? order by id DESC limit ?;
+            ''', (uid, num))
         entries = self.cursor.fetchall()
         chat_keys = ["id", "title"]
         chats = []
@@ -189,10 +208,10 @@ class ChatsDatabase(Database):
                 chat["search_list"] = self._find_search_terms(search_ids)
         return chats
     
-    def similar_chats(self, title:str, similar_threshold=0.9):
+    def similar_chats(self, uid, title:str, similar_threshold=0.9):
         '''Find through all chat titles similar to input message
         '''
-        chats = self.get_chats()
+        chats = self.get_chats(uid)
         similar_scores = sentence_similarity(title, [chat["title"] for chat in chats])
         sim_chats = []
         for c in range(len(chats)):
@@ -203,12 +222,12 @@ class ChatsDatabase(Database):
         sim_chats.sort(key=lambda chat: chat["similarity"], reverse=True)
         return sim_chats
     
-    def similar_searches(self, term:str, mode:str, similar_threshold=0.9):
+    def similar_searches(self, uid, term:str, mode:str, similar_threshold=0.9):
         '''Find through all search history with similar search terms, include respnse
         '''
         self.cursor.execute('''
-            SELECT id, search_term, summarized_response FROM Search WHERE mode=?;
-        ''', (mode,))
+            SELECT id, search_term, summarized_response FROM Search WHERE mode=? and user = ?;
+        ''', (mode,uid))
         searches = self.cursor.fetchall()
         similar_scores = sentence_similarity(term, [search[1] for search in searches])
         sim_searches = []
@@ -234,13 +253,13 @@ class ChatsDatabase(Database):
         message_id = self.cursor.lastrowid
         return message_id
     
-    def add_search(self, term="", mode="", response="", id=None, commit=True):
+    def add_search(self, uid="", term="", mode="", response="", id=None, commit=True):
         if id is None:
             # Add new search terms and response
             self.cursor.execute('''
-                INSERT INTO Search (search_term, mode, summarized_response, frequency)
-                VALUES (?, ?, ?);
-            ''', (term, mode, response, 1))
+                INSERT INTO Search (search_term, mode, summarized_response, frequency, user)
+                VALUES (?, ?, ?, ?, ?);
+            ''', (term, mode, response, 1, uid))
             
         else:
             if not response:
@@ -257,6 +276,34 @@ class ChatsDatabase(Database):
         if commit:
             self.connection.commit()
         return self.cursor.lastrowid
+    
+    def login_register(self, uid, name, pwd):
+        if uid:
+            self.cursor.execute('''
+                Select * from Users where id = ?;
+            ''', (uid,))
+            user = self.cursor.fetchone()
+            if user and user[2] == pwd:
+                # user id exists and password correct, return user id
+                return user[0]
+            else:
+                return ""
+        else:
+            # No user id provided, register new user and return id
+            self.cursor.execute('''
+                INSERT INTO Users (name, credential)
+                VALUES (?, ?);
+            ''', (name, pwd))
+            return self.cursor.lastrowid
+        
+    def get_username(self, uid):
+        self.cursor.execute('''
+                Select name from Users where id = ?;
+            ''', (uid,))
+        return self.cursor.fetchone()[0]
+
+            
+
 
 
 
