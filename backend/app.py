@@ -215,9 +215,13 @@ def get_chats():
             ...
         ]
     '''
-    uid = request.get_json()["user_id"]
-    chats = chat_db.get_chats(uid)
-    return jsonify(chats)
+    uid = request.args.get("user_id")
+    if (uid):
+        chats = chat_db.get_chats(uid)
+        print(chats)
+        return jsonify(chats)
+    else:
+        return jsonify({'error': 'User ID not provided'}), 400
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
