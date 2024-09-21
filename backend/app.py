@@ -53,7 +53,7 @@ def hello():
     }
     '''
     uid = 0
-    chats = chat_db.recent_chats(uid)
+    chats = chat_db.get_chats(uid, 10)
     return jsonify({'chats': chats})
 
 @app.route('/api/start/<int:user_id>', methods=['POST'])
