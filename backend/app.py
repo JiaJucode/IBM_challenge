@@ -34,7 +34,7 @@ def login():
     else:
         return redirect(f'/api/hello/{user}')
 
-@app.route('/api/hello/<int:user_id>', methods=['GET'])
+@app.route('/api/hello', methods=['GET'])
 def hello():
     '''Welcome page showing recent chats and include a text box (form input) to begin a chat
     Request format:
@@ -52,10 +52,9 @@ def hello():
         ],
     }
     '''
-    uid = request.get_json()["user_id"]
-    user_name = chat_db.get_username(uid)
+    uid = 0
     chats = chat_db.recent_chats(uid)
-    return jsonify({'user_name': user_name, 'chats': chats})
+    return jsonify({'chats': chats})
 
 @app.route('/api/start/<int:user_id>', methods=['POST'])
 def create_chat():
