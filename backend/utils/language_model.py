@@ -1,4 +1,4 @@
-from transformers import AutoTokenizer, AutoModel
+from transformers import AutoTokenizer, AutoModel, pipeline
 import torch
 import torch.nn.functional as Func
 
@@ -24,8 +24,17 @@ def sentence_similarity(ref: str, candidates: list[str]):
     cos = torch.nn.CosineSimilarity()
     return cos(ref_embed, cand_embed)
 
-if __name__ == "__main__":
-    print(sentence_similarity("start having lunch", ["begin to have lunch", "finish cooking meals"]))
-    # example output: [0.937, 0.434]
+def question_entailment(question:str, context:str):
+    '''Check whether a question can be answered given some context
+    '''
+    entail = pipeline("text-classification", model = "cross-encoder/qnli-electra-base")
+    return entail(question+","+context)
 
+
+if __name__ == "__main__":
+    # print(sentence_similarity("start having lunch", ["begin to have lunch", "finish cooking meals"]))
+    # example output: [0.937, 0.434]
+    print(question_entailment("Which capital city is the coldest around the world?", 
+        "Climate statistics show that Ulaanbaatar, the capital of Mongolia, has the lowest annual average temperature among all capital cities"))
+    # example output: [{'label': 'LABEL_0', 'score': 0.9766839742660522}]
 
