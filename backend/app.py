@@ -187,10 +187,5 @@ def get_chats():
     chats = chat_db.get_chats()
     return jsonify(chats)
 
-# On closing the app
-@app.teardown_appcontext
-def close_connection(exception):
-    chat_db.close()
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
