@@ -10,9 +10,9 @@ services:
       FLASK_ENV: development
     networks:
       - app-network
-    secrets:
-      - google_api_key
-      - google_search_engine_id
+    # secrets:
+    #   - google_api_key
+    #   - google_search_engine_id
 
   frontend:
     build: ./frontend/ibm_challenge
@@ -26,12 +26,14 @@ services:
     networks:
       - app-network
   
-  secrets:
-    api_key:
-      external: true
-    search_engine_id:
-      external: true
+  # secrets:
+  #   api_key:
+  #     external: true
+  #   search_engine_id:
+  #     external: true
 
 networks:
   app-network:
     driver: bridge
+
+
