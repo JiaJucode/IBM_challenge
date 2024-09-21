@@ -3,26 +3,15 @@ import os
 
 api_key = os.getenv("GOOGLE_API_KEY")
 search_engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID") 
-main_keyword = "test"
 
 url = f"https://www.googleapis.com/customsearch/v1"
-default_params = f"key={api_key}&exactTerms={main_keyword}&cx={search_engine_id}&lr=lang_en&sort=date:d:s"
 
-def request_builder(dateRestrict=None, excludeTerm=None, start=1, orTerms=None, excludeWebsites=None):
-    params = default_params
-    params += f"&start={start}"
-    if dateRestrict:
-        params += f"&dateRestrict={dateRestrict}"
-    if excludeTerm:
-        params += f"&excludeTerms={excludeTerm}"
-    if orTerms:
-        params += f"&orTerms={orTerms}"
-    if excludeWebsites:
-        params += f"&excludeSites={excludeWebsites}"
-    return params
+def search(search_query):
+    params = f"key={api_key}&exactTerms={search_query}&cx={search_engine_id}&lr=lang_en&sort=date:d:s"
+    return requests.get(url + "?" + params).json()
 
-def extract_content(params):
-    results = requests.get(url + "?" + params).json()
+def extract_content(search_query):
+    results = search(search_query)
     html_content = {}
     for item in results["items"]:
         link = item["link"]
