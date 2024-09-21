@@ -64,11 +64,11 @@ class ChatsDatabase(Database):
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS Search (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user Integer,
+                user INTEGER,
                 search_term TEXT,
                 mode TEXT CHECK(mode IN ('Google maps', 'Google search')),
-                frequency Integer,
-                summarized_response TEXT
+                frequency INTEGER,
+                summarized_response TEXT,
                 FOREIGN KEY (user) REFERENCES Users (id)
             );
         ''')
@@ -79,7 +79,7 @@ class ChatsDatabase(Database):
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user Integer,
                 title TEXT,
-                search_list TEXT
+                search_list TEXT,
                 FOREIGN KEY (user) REFERENCES Users (id)
             );
         ''')
