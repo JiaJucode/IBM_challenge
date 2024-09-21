@@ -17,7 +17,7 @@ class Database:
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super(Database, cls).__new__(cls)
-            cls._instance.connection = sqlite3.connect('backend/database.db')
+            cls._instance.connection = sqlite3.connect('backend/database.db', check_same_thread=False)
             cls._instance.connection.row_factory = cls.__dict_factory
             cls._instance.cursor = cls._instance.connection.cursor()
             cls._instance._create_tables()
