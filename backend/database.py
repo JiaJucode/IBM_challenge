@@ -111,11 +111,11 @@ class ChatsDatabase(Database):
     
     def _find_search_terms(self, search_ids):
         self.cursor.execute(f'''
-            Select id, search_term, mode from Search where id in {tuple(search_ids)}
+            Select id, search_term, mode, summarized_response from Search where id in {tuple(search_ids)}
         ''')
         searches = self.cursor.fetchall()
-        search_keys = ["id, search_term, mode"]
-        return [{search_keys[i]: search[i] for i in range(len(search_keys))} for search in searches]
+        search_keys = ["id", "search_term", "mode", "summarized_response"]
+        return [{key: search[key] for key in search_keys} for search in searches]
 
     def get_chat(self, chat_id):
         '''
@@ -212,10 +212,11 @@ class ChatsDatabase(Database):
         chat_keys = ["id", "title"]
         chats = []
         for entry in entries:
-            if entry[2]:
-                search_ids = entry[2].split(",")
-                chat = {chat_keys[i]: entry[i] for i in range(len(chat_keys))}
+            if entry["search_list"]:
+                search_ids = entry["search_list"].split(",")
+                chat = {key: entry[key] for key in chat_keys}
                 chat["search_list"] = self._find_search_terms(search_ids)
+                chats.append(chat)
         return chats
     
     def similar_chats(self, uid, title:str, similar_threshold=0.9):
@@ -318,60 +319,77 @@ class ChatsDatabase(Database):
 
 
 # Test database without persisting data
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    print("Starting database tests...")
+#     print("Starting database tests...")
 
-    # Without context manager
-    # chat_db = ChatsDatabase()
+#     # Without context manager
+#     # chat_db = ChatsDatabase()
 
-    # chat_id = chat_db.create_chat(search_query="foo", summarized_search_results="foo bar baz", commit=False)
-    # print("Created chat with ID:", chat_id)
+#     # chat_id = chat_db.create_chat(search_query="foo", summarized_search_results="foo bar baz", commit=False)
+#     # print("Created chat with ID:", chat_id)
 
-    # chat = chat_db.get_chat(chat_id)
-    # print("Fetched chat after creating 1 chat:", chat)
+#     # chat = chat_db.get_chat(chat_id)
+#     # print("Fetched chat after creating 1 chat:", chat)
 
-    # chat_db.add_message(chat_id, role="system", content="system message", commit=False)
-    # chat_db.add_message(chat_id, role="user", content="user message 0", commit=False)
-    # chat_db.add_message(chat_id, role="assistant", content="assistant message 0", commit=False)
-    # chat_db.add_message(chat_id, role="user", content="user message 1", commit=False)
-    # chat_db.add_message(chat_id, role="assistant", content="assistant message 1", commit=False)
+#     # chat_db.add_message(chat_id, role="system", content="system message", commit=False)
+#     # chat_db.add_message(chat_id, role="user", content="user message 0", commit=False)
+#     # chat_db.add_message(chat_id, role="assistant", content="assistant message 0", commit=False)
+#     # chat_db.add_message(chat_id, role="user", content="user message 1", commit=False)
+#     # chat_db.add_message(chat_id, role="assistant", content="assistant message 1", commit=False)
 
-    # messages = chat_db.get_chat_history(chat_id=chat_id)
-    # print("Fetched messages:", messages)
+#     # messages = chat_db.get_chat_history(chat_id=chat_id)
+#     # print("Fetched messages:", messages)
 
-    # chat_db.create_chat(search_query="bar", summarized_search_results="bar baz foo")
-    # chat_db.create_chat(search_query="baz", summarized_search_results="baz foo bar")
+#     # chat_db.create_chat(search_query="bar", summarized_search_results="bar baz foo")
+#     # chat_db.create_chat(search_query="baz", summarized_search_results="baz foo bar")
 
-    # chats = chat_db.get_chats()
-    # print("Fetched chats after creating 3 chats:", chats)
+#     # chats = chat_db.get_chats()
+#     # print("Fetched chats after creating 3 chats:", chats)
 
-    # chat_db.close()
+#     # chat_db.close()
 
-    # using context manager
-    with ChatsDatabase() as chat_db:
-        chat_id = chat_db.create_chat(
-            search_query="foo", summarized_search_results="foo bar baz")
-        print("Created chat with ID:", chat_id)
+#     # using context manager
+#     with ChatsDatabase() as chat_db:
+#         chat_id = chat_db.create_chat(
+#             search_query="foo", summarized_search_results="foo bar baz")
+#         print("Created chat with ID:", chat_id)
 
-        chat = chat_db.get_chat(chat_id)
-        print("Fetched chat after creating 1 chat:", chat)
+#         chat = chat_db.get_chat(chat_id)
+#         print("Fetched chat after creating 1 chat:", chat)
 
-        chat_db.add_message(chat_id, role="system", content="system message")
-        chat_db.add_message(chat_id, role="user", content="user message 0")
-        chat_db.add_message(chat_id, role="assistant",
-                            content="assistant message 0")
-        chat_db.add_message(chat_id, role="user", content="user message 1")
-        chat_db.add_message(chat_id, role="assistant",
-                            content="assistant message 1")
+#         chat_db.add_message(chat_id, role="system", content="system message")
+#         chat_db.add_message(chat_id, role="user", content="user message 0")
+#         chat_db.add_message(chat_id, role="assistant",
+#                             content="assistant message 0")
+#         chat_db.add_message(chat_id, role="user", content="user message 1")
+#         chat_db.add_message(chat_id, role="assistant",
+#                             content="assistant message 1")
 
-        messages = chat_db.get_chat_history(chat_id=chat_id)
-        print("Fetched messages:", messages)
+#         messages = chat_db.get_chat_history(chat_id=chat_id)
+#         print("Fetched messages:", messages)
 
-        chat_db.create_chat(search_query="bar",
-                            summarized_search_results="bar baz foo")
-        chat_db.create_chat(search_query="baz",
-                            summarized_search_results="baz foo bar")
+#         chat_db.create_chat(search_query="bar",
+#                             summarized_search_results="bar baz foo")
+#         chat_db.create_chat(search_query="baz",
+#                             summarized_search_results="baz foo bar")
 
-        chats = chat_db.get_chats()
-        print("Fetched chats after creating 3 chats:", chats)
+#         chats = chat_db.get_chats()
+#         print("Fetched chats after creating 3 chats:", chats)
+
+# db = ChatsDatabase()
+# # db.create_chat(0, "test1")
+# # db.add_message(0, "user", "this is my question")
+# # db.add_message(0, "assistant", "this is the response")
+# # db.add_search(0, "this is my question", "Google search", "this is the response")
+# cursor = db.connection.cursor()
+# # cursor.execute('''
+# #     INSERT INTO Chats (user, title, search_list)
+# #     VALUES (0, 'test2', '0,1,2');
+# # ''')
+# db.connection.commit()
+# cursor.execute('''
+#     Select * from Search;
+# ''')
+# print(cursor.fetchall())
+# print(db.get_chats(0))

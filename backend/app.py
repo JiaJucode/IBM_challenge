@@ -152,6 +152,8 @@ def get_response():
     uid = chat_db.chat_user(chat_id)
     message = request_data.get('message')
     mode = request_data.get('mode')
+    if (not mode):
+        mode = "Google search"
 
     # Attempt to get AI response
     try:
