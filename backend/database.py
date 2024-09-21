@@ -190,14 +190,24 @@ class ChatsDatabase(Database):
         '''
         if not num:
             # Return all chats
-            self.cursor.execute('''
-                SELECT * FROM Chats where user = ?;
-            ''', (uid,))
+            try:
+                self.cursor.execute('''
+                    SELECT * FROM Chats where user = ?;
+                ''', (uid,))
+            except:
+                # chat not found 
+                # TODO: maybe return some error message here
+                return []
         else:
-            # Return recent {num} chats
-            self.cursor.execute('''
-                SELECT * FROM Chats where user = ? order by id DESC limit ?;
-            ''', (uid, num))
+            try:
+                # Return recent {num} chats
+                self.cursor.execute('''
+                    SELECT * FROM Chats where user = ? order by id DESC limit ?;
+                ''', (uid, num))
+            except:
+                # chat not found 
+                # TODO: maybe return some error message here
+                return []
         entries = self.cursor.fetchall()
         chat_keys = ["id", "title"]
         chats = []

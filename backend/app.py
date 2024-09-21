@@ -218,7 +218,6 @@ def get_chats():
     uid = request.args.get("user_id")
     if (uid):
         chats = chat_db.get_chats(uid)
-        print(chats)
         return jsonify(chats)
     else:
         return jsonify({'error': 'User ID not provided'}), 400
