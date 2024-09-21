@@ -47,7 +47,7 @@ def create_chat():
         title = bot.create_chat_title(title)
     
     # Prompt user similar chats if the new title is similar enough to some existing ones
-    if similar := chat_db.similat_chats(title):
+    if similar := chat_db.similar_chats(title):
         return jsonify(similar)
     # Otherwise, create a new chat and redirect to the chat page with user's initial message
     else:
@@ -101,21 +101,33 @@ def get_response():
     # Attempt to get AI response
     try:
         search_terms = bot.process_search_query(message)
-        if mode == "Google maps":
+        response = ""
+        if sim_searches := chat_db.similar_searches(search_terms, mode):
+            response = "I found some of the previous searches similar to your requirement:"
+            for search in sim_searches:
+                chat_db.add_search(id=search["id"])
+                response += f"\n<{search["search_term"]}> ({100*search["similarity"]}% similar)\n{search["summarized_response"]}"
+        elif mode == "Google maps":
             maps_tool = MapsTextSearch()
             all_places = []
             for term in search_terms.split(";"):
+                # Perform maps search on each individual search term element
                 maps_tool.query = term
                 places = json.dumps(maps_tool.get_response())
                 all_places.append(places)
-        else:
-            pass
+
+            # TODO Search places on Google maps and summarize response
+            chat_db.add_search(search_terms, mode, response)
+
+        elif mode == "Google search":
+            # TODO Search Google and summarize response
+            chat_db.add_search(search_terms, mode, response)
 
         response = get_ai_response(message)
     except Exception as e:
         return jsonify({'error': f"Error getting AI response: {e}"}), 500
     
-    # Save messages
+    # Save messages to database and redirect to chat page
     if request_data.get('add_query') == "true":
         chat_db.add_message(chat_id=chat_id, role='user', content=message)
     chat_db.add_message(chat_id=chat_id, role='assistant', content=response)

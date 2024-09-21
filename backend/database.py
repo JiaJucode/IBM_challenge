@@ -56,6 +56,7 @@ class ChatsDatabase(Database):
             CREATE TABLE IF NOT EXISTS Search (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 search_term TEXT,
+                mode TEXT CHECK(mode IN ('Google maps', 'Google search')),
                 frequency Integer,
                 summarized_response TEXT
             );
@@ -171,19 +172,33 @@ class ChatsDatabase(Database):
         '''
         chats = self.get_chats()
         similar_scores = sentence_similarity(title, [chat["title"] for chat in chats])
-        similar_chats = []
+        sim_chats = []
         for c in range(len(chats)):
             sim = similar_scores[c]
             if sim >= similar_threshold:
                 chats[c]["similarity"] = sim
-                similar_chats.append((chats[c], sim))
-        similar_chats.sort(key=lambda entry: entry[1], reverse=True)
-        return similar_chats
+                sim_chats.append(chats[c])
+        sim_chats.sort(key=lambda chat: chat["similarity"], reverse=True)
+        return sim_chats
     
-    def similar_search(self, term:str, similar_threshold=0.9):
-        '''Find through all chat titles similar to input message
+    def similar_searches(self, term:str, mode:str, similar_threshold=0.9):
+        '''Find through all search history with similar search terms, include respnse
         '''
-        pass
+        self.cursor.execute('''
+            SELECT id, search_term, summarized_response FROM Search WHERE mode=?;
+        ''', (mode,))
+        searches = self.cursor.fetchall()
+        similar_scores = sentence_similarity(term, [search[1] for search in searches])
+        sim_searches = []
+        keys = ["id", "search_term", "summarized_response"]
+        for c in range(len(searches)):
+            sim = similar_scores[c]
+            if sim >= similar_threshold:
+                search = {keys[i]: searches[c][i] for i in range(len(keys))}
+                search["similarity"] = sim
+                sim_searches.append(search)
+        sim_searches.sort(key=lambda search: search["similarity"], reverse=True)
+        return sim_searches
 
     def add_message(self, chat_id, role, content, commit=True):
         self.cursor.execute('''
@@ -195,8 +210,33 @@ class ChatsDatabase(Database):
             self.connection.commit()
 
         message_id = self.cursor.lastrowid
-
         return message_id
+    
+    def add_search(self, term="", mode="", response="", id=None, commit=True):
+        if id is None:
+            # Add new search terms and response
+            self.cursor.execute('''
+                INSERT INTO Search (search_term, mode, summarized_response, frequency)
+                VALUES (?, ?, ?);
+            ''', (term, mode, response, 1))
+            
+        else:
+            if not response:
+                # Use cached search and increment frequency
+                self.cursor.execute('''
+                    Update Search set frequency=frequency+1 where id=?
+                ''', (id,))
+            else:
+                # Update cache with new response and increment frequency
+                self.cursor.execute('''
+                    Update Search set frequency=frequency+1, summarized_response=? where id=?
+                ''', (response, id))
+
+        if commit:
+            self.connection.commit()
+        return self.cursor.lastrowid
+
+
 
 # Test database without persisting data
 if __name__ == "__main__":
