@@ -1,10 +1,10 @@
 
 from textwrap import dedent
-# from utils.ai_config import get_ai_response
+from utils.ai_config import get_ai_response
 from utils.helpers import markdown_to_html
 
-def get_ai_response(system_prompt, messages):
-    return "this is the response from AI"
+# def get_ai_response(system_prompt, messages):
+#     return "this is the response from AI"
 
 def create_chat_title(query: str) -> str:
     system_prompt = dedent(
