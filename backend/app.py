@@ -46,8 +46,27 @@ def create_chat():
     if len(title) > 200:
         title = bot.create_chat_title(title)
     
-    # Prompt user similar chats if the new title is similar enough to some existing ones
+    # Prompt user with similar chats if the new title is close enough to some existing ones
     if similar := chat_db.similar_chats(title):
+        '''
+            Return format:
+            [
+                {
+                    'id': <chat_id>,
+                    'title': <chat_title>,
+                    'similarity': <n% similar>
+                    'search_list': [
+                        {
+                            'id': <search_id>
+                            'search_term': <search_term>
+                            'mode': <Google search | Google maps>
+                        }
+                        ...
+                    ]
+                },
+                ...
+            ]
+        '''
         return jsonify(similar)
     # Otherwise, create a new chat and redirect to the chat page with user's initial message
     else:
@@ -71,6 +90,14 @@ def load_chat(chat_id):
                 'role': <role>,
                 'content': <content>,
                 'timestamp': <timestamp>
+            },
+            ...
+        ]
+        'searches': [
+            {
+                'id': <seach_id>,
+                'search_term': <term>,
+                'mode': <Google maps | Google search>
             },
             ...
         ]
@@ -107,6 +134,7 @@ def get_response():
             for search in sim_searches:
                 chat_db.add_search(id=search["id"])
                 response += f"\n<{search["search_term"]}> ({100*search["similarity"]}% similar)\n{search["summarized_response"]}"
+            chat_db.chat_add_search(chat_id,[str(search["id"]) for search in sim_searches])
         elif mode == "Google maps":
             maps_tool = MapsTextSearch()
             all_places = []
@@ -148,6 +176,7 @@ def get_chats():
                     {
                         'id': <search_id>
                         'search_term': <search_term>
+                        'mode': <Google search | Google maps>
                     }
                     ...
                 ]

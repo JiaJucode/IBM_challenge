@@ -96,19 +96,13 @@ class ChatsDatabase(Database):
         chat_id = self.cursor.lastrowid
         return chat_id
     
-    def update_chat(self, chat_id, summarized_search_results=None, commit=True):
-        if summarized_search_results:
-            # Modify search results and increment frequency
-            self.cursor.execute('''
-                Update Chats set frequency=frequency+1, summarized_search_results=? where id=? 
-            ''', (summarized_search_results, chat_id))
-        else:
-            # Increment results only
-            self.cursor.execute('''
-                Update Chats set frequency=frequency+1 where id=? 
-            ''', (chat_id))
-        if commit:
-            self.connection.commit()
+    def _find_search_terms(self, search_ids):
+        self.cursor.execute(f'''
+            Select id, search_term, mode from Search where id in {tuple(search_ids)}
+        ''')
+        searches = self.cursor.fetchall()
+        search_keys = ["id, search_term, mode"]
+        return [{search_keys[i]: search[i] for i in range(len(search_keys))} for search in searches]
 
     def get_chat(self, chat_id):
         '''
@@ -120,6 +114,7 @@ class ChatsDatabase(Database):
             SELECT * FROM Chats WHERE id = ?;
         ''', (chat_id,))
         chat = self.cursor.fetchone()
+        search_ids = chat[2]
 
         if chat is None:
             return {'chat': None, 'messages': None}
@@ -136,7 +131,38 @@ class ChatsDatabase(Database):
         messages = self.cursor.fetchall()
         keys = ["role", "content", "timestamp"]
         messages = {keys[i]: messages[i] for i in range(len(keys))}
-        return {'chat': chat, 'messages': messages}
+        searches = self._find_search_terms(search_ids)
+
+        return {'chat': chat, 'messages': messages, "searches": searches}
+    
+    def chat_add_search(self, chat_id, new_search_ids:list, commit=True):
+        self.cursor.execute('''
+            SELECT search_list FROM Chats WHERE id = ?;
+        ''', (chat_id,))
+        searches:str = self.cursor.fetchone()[0]
+        if not searches:
+            searches = ""
+        # 'search_list' entry of Chats stores a list of search ids in comma separated strings
+        search_list = searches.split(",")
+        new_searches = ""
+
+        for i in new_search_ids:
+            if i in search_list:
+                # Move the same search id to the end of the list
+                search_list.remove(i)
+            search_list.append(i)
+        
+        for i in search_list:
+            new_searches += f"{i},"
+        new_searches = new_searches[:-1]
+
+        self.cursor.execute('''
+            Update Chats set search_list = ? where id = ?;
+        ''', (chat_id, new_searches))
+
+        if commit:
+            self.connection.commit()
+        return search_list
         
     def get_chats(self, num=0) -> list[dict]:
         '''
@@ -154,17 +180,13 @@ class ChatsDatabase(Database):
                 SELECT * FROM Chats order by id DESC limit ?;
             ''', (num,))
         entries = self.cursor.fetchall()
-        chat_keys, search_keys = ["id", "title"], ["id", "search_term"]
+        chat_keys = ["id", "title"]
         chats = []
         for entry in entries:
             if entry[2]:
                 search_ids = entry[2].split(",")
-                self.cursor.execute(f'''
-                    Select id, search_term from Search where id in {tuple(search_ids)}
-                ''')
-                searches = self.cursor.fetchall()
                 chat = {chat_keys[i]: entry[i] for i in range(len(chat_keys))}
-                chat["search_list"] = [{search_keys[i]: search[i] for i in range(len(search_keys))} for search in searches]
+                chat["search_list"] = self._find_search_terms(search_ids)
         return chats
     
     def similar_chats(self, title:str, similar_threshold=0.9):

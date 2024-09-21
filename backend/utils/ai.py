@@ -5,7 +5,7 @@ from helpers import markdown_to_html
 
 def create_chat_title(query: str) -> str:
     system_prompt = dedent(
-        """You are a helpsul secretary, and your role is to help users summarize and take notes of what they said. Users want 
+        """You are a helpful secretary, and your role is to help users summarize and take notes of what they said. Users want 
         their words to be summarized into shorter forms like newspaper headlines, which is helpful for their future reference.
         To achieve the goal, you need to know the topic or academic field related to what the user says. You don't need to provide
         any answer or inject your own opinion.
@@ -25,11 +25,10 @@ def process_search_query(query: str) -> str:
     '''
     system_prompt = dedent(
         """Your role is to extract key information from long sentences and paragraphs. You help users communicate their questions, 
-        requirements, and needs with Internet search engine. Users want their requests to be summarized into search terms. 
-        Both the conciseness and relavance of your summary are important factors. 
+        requirements, and needs with Internet search engine. Users want their requests to be summarized web search terms. 
+        Conciseness and relavance of your summary are very important factors, but grammar and coherence are not.
         To achieve the goal, you first need to know the topic or academic field related to what the user asks. 
-        Then, consider user's expectations, like the format of answers they with to receive. Based on these, you tell the user 
-        what words to put in the Internet search that best summarizes their needs.
+        Then, consider user's expectations. Based on these, you tell the user what words to put in the Internet search box.
         """
     )
     user_prompt = dedent(
