@@ -27,7 +27,11 @@ def extract_content(search_query):
         html_content[link] = html.text
     return html_content
     
-
+if __name__ == '__main__':
+    search_query = "how to solve a rubik's cube"
+    print(search(search_query))
+    print("-------\n\n\n")
+    print(extract_content(search_query))
 # print(json.dumps(search(request_builder()), indent=4))
 # example output:
 # {
