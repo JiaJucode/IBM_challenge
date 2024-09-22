@@ -10,9 +10,8 @@ services:
       FLASK_ENV: development
     networks:
       - app-network
-    # secrets:
-    #   - google_api_key
-    #   - google_search_engine_id
+    env_file:
+      - .env
 
   frontend:
     build: ./frontend/ibm_challenge
