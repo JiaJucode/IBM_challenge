@@ -4,6 +4,7 @@ from flask_cors import CORS
 from database import ChatsDatabase
 import utils.ai as bot
 import utils.google_search_client as google_search
+from utils.helpers import get_middle_truncated_text
 
 app = Flask(__name__)
 chat_db = ChatsDatabase()
@@ -58,7 +59,7 @@ def create_chat():
     # scrape contents of each search result website
     scraped_contents = google_search.scrape_contents([search_result["link"] for search_result in search_results])
     for i, scraped_content in enumerate(scraped_contents):
-        search_results[i]["content"] = bot.get_middle_truncated_text(scraped_content)
+        search_results[i]["content"] = get_middle_truncated_text(scraped_content)
 
     # generate summary for each search result
     for i, search_result in enumerate(search_results):
@@ -136,12 +137,6 @@ def get_response():
     chat_db.add_message(chat_id=chat_id, role='assistant', content=response)
 
     return jsonify({'response': response})
-
-
-@app.teardown_appcontext
-def close_connection(exception):
-    chat_db.close()
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

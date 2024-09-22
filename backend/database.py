@@ -57,7 +57,7 @@ class ChatsDatabase(Database):
             CREATE TABLE IF NOT EXISTS Chats (
                 chat_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT,
-                search_summary TEXT,
+                search_summary TEXT
             );
         ''')
 

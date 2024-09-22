@@ -110,7 +110,7 @@ const ChatPage = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    initial_message: message
+                    search_query: message
                 })
             }).then(response => response.json())
                 .then((data: { chat_id: number, title: string, response: string}) => {
