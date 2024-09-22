@@ -71,6 +71,15 @@ class ChatsDatabase(Database):
             );
         ''')
 
+        # Search response table
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS Search (
+                search_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                search_term TEXT,
+                message INTEGER
+            );
+        ''')
+
         self.connection.commit()
 
     def create_chat(self, uid, title: str, commit=True):
@@ -117,9 +126,37 @@ class ChatsDatabase(Database):
 
         message_id = self.cursor.lastrowid
         return message_id
+    
+    def add_search(self, term, msgid, commit=True):
+        self.cursor.execute('''
+            INSERT INTO Search (search_term, message)
+            VALUES (?, ?);
+        ''', (term, msgid))
 
-db = ChatsDatabase()
-cursor = db.cursor
-# print all tables
-cursor.execute(" SELECT role, content FROM Messages Where chat_id = 1")
-print(cursor.fetchall())
+        if commit:
+            self.connection.commit()
+
+    def get_searches(self, chat_id=None):
+        if chat_id is not None:
+            self.cursor.execute('''
+                Select search_term, content as response from Search inner join Messages on 
+                    message=message_id AND chat_id = ?
+            ''', (chat_id,))
+        else:
+            self.cursor.execute('''
+                Select search_term, content as response from Search inner join Messages on 
+                    message=message_id
+            ''')
+
+        return self.cursor.fetchall()
+
+if __name__ == "__main__":
+    db = ChatsDatabase()
+    cursor = db.cursor
+    # print all tables
+    # cursor.execute(" SELECT role, content FROM Messages Where chat_id = 1")
+    for i in [1,2,5]:
+        db.add_search(f"search {i}", i, False)
+    # print(cursor.execute("select * from Search").fetchall())
+    print(db.get_searches())
+    # print(cursor.fetchall())
