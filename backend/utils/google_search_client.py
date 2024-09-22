@@ -1,6 +1,7 @@
 import requests
 import os
 from bs4 import BeautifulSoup, Comment
+from language_model import entailment_filter
 
 api_key = os.getenv("GOOGLE_API_KEY")
 search_engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID")
@@ -35,7 +36,7 @@ def search(search_query, top_n=5):
     return top_results
 
 
-def scrape_contents(website_links: list) -> list:
+def scrape_contents(query:str, website_links: list) -> list:
     '''
     Scrape contents of websites from a list of website links.
     Returns html content of each website as a single string for each website.
@@ -64,9 +65,11 @@ def scrape_contents(website_links: list) -> list:
             for element in soup(text=lambda text: isinstance(text, Comment)):
                 element.extract()   
 
+            
             # store contents
-            contents.append(' '.join(soup.stripped_strings))
+            contents.append(entailment_filter(query, ' '.join(soup.stripped_strings)))
             # contents.append(soup.prettify())
+
 
         except Exception as e:
             print(f"Failing to scrape website: {link}: {e}")
@@ -77,17 +80,20 @@ def scrape_contents(website_links: list) -> list:
 if __name__ == "__main__":
     import json
 
-    query = "Write a flask route that returns hello world"
-    results = search(query, top_n=1)
+    # query = "Write a flask route that returns hello world"
+    # results = search(query, top_n=1)
 
-    print("Search Results:")
-    print(json.dumps(results, indent=4))
-    print("\n\n")
+    # print("Search Results:")
+    # print(json.dumps(results, indent=4))
+    # print("\n\n")
+    results = [{"link": "https://www.mongolia-travel-and-tours.com/climate-mongolia.html#:~:text=Mongolia%20%2D%20because%20of%20its%20high,particularly%20in%20the%20Gobi%20Desert."},
+               {"link": "https://climateknowledgeportal.worldbank.org/country/mongolia/climate-data-historical"},
+               {"link": "https://stackoverflow.com/questions/24398302/bs4-featurenotfound-couldnt-find-a-tree-builder-with-the-features-you-requeste"}]
 
     print("Scraped Contents:")
-    scraped_contents = scrape_contents([result["link"] for result in results])
-    scrape_contents = {result["link"]: content for result, content in zip(results, scraped_contents)}
-    print(json.dumps(scrape_contents, indent=4))
+    scraped_contents = scrape_contents("What is the weather like in Mongolia at winter?", [result["link"] for result in results])
+    scraping = {result["link"]: content for result, content in zip(results, scraped_contents)}
+    print(json.dumps(scraping, indent=4))
 
 # print(json.dumps(search(request_builder()), indent=4))
 # example output:

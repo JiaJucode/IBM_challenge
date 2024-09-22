@@ -24,17 +24,37 @@ def sentence_similarity(ref: str, candidates: list[str]):
     cos = torch.nn.CosineSimilarity()
     return cos(ref_embed, cand_embed)
 
-def question_entailment(question:str, context:str):
+def entailment_filter(question:str, context:str, threshold=0.9):
     '''Check whether a question can be answered given some context
     '''
+    pos = 0
     entail = pipeline("text-classification", model = "cross-encoder/qnli-electra-base")
-    return entail(question+","+context)
+    segs = []
+    while pos < len(context):
+        segs.append(context[pos:pos+1000])
+        pos += 900
+    scores = entail([question+"?,"+seg for seg in segs])
+    valid_content, seg_num = "", None
+    for s in range(len(scores)):
+        if scores[s]["score"] > threshold:
+            print(s, scores[s])
+            if seg_num is not None and s == seg_num+1:
+                # remove overlapping content
+                valid_content += segs[s][100:]
+            else:
+                seg_num = s
+                valid_content += segs[s]
+    return valid_content
 
 
 if __name__ == "__main__":
     # print(sentence_similarity("start having lunch", ["begin to have lunch", "finish cooking meals"]))
-    # example output: [0.937, 0.434]
-    print(question_entailment("Which capital city is the coldest around the world?", 
-        "Climate statistics show that Ulaanbaatar, the capital of Mongolia, has the lowest annual average temperature among all capital cities"))
+    # # example output: [0.937, 0.434]
+    # print(question_entailment("Which capital city is the coldest around the world?", 
+    #     "Climate statistics show that Ulaanbaatar, the capital of Mongolia, has the lowest annual average temperature among all capital cities"))
     # example output: [{'label': 'LABEL_0', 'score': 0.9766839742660522}]
+    import requests, html2text
+    result:str = html2text.html2text(requests.get("https://www.mongolia-travel-and-tours.com/climate-mongolia.html#:~:text=Mongolia%20%2D%20because%20of%20its%20high,particularly%20in%20the%20Gobi%20Desert.",
+                 timeout=5).text)
+    print(question_entailment("How to create a presentation slides about", result))
 
