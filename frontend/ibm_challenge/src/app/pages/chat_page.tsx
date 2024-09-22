@@ -49,7 +49,7 @@ const ChatPage = () => {
             .catch((error) => {
                 console.error('Error:', error);
             });
-    }, []);
+    }, [chatBoxs]);
 
     useEffect(() => {
         if (!chatMessagesLoading) {
@@ -78,7 +78,7 @@ const ChatPage = () => {
                 }
             }
         }
-    }, [chatMessagesLoading]);
+    }, [chatMessagesLoading, chatBoxs, currentChat]);
 
     useEffect(() => {
         if (!replyWaiting) {
@@ -196,8 +196,8 @@ const ChatPage = () => {
                                 </Button>
                             </Grid>
                             {!chatListLoading ?
-                                <div>
-                                {Object.keys(chatBoxs).map((chatID: string) => (
+                                
+                                Object.keys(chatBoxs).map((chatID: string) => (
                                     <Grid key={chatID} size={12} sx={{ width: '100%' }}>
                                         <Button sx={{ width: '100%' }} onClick={() => handleSelectChat(Number(chatID))}>
                                             <Typography 
@@ -212,8 +212,8 @@ const ChatPage = () => {
                                             </Typography>
                                         </Button>
                                     </Grid>)
-                                )}
-                                </div>
+                                )
+                                
                             : null}
                         </Grid>
                     </Box>
