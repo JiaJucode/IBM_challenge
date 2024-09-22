@@ -76,9 +76,9 @@ def create_chat():
     chat_db.add_message(chat_id, 'user', initial_message)
     
     # get search response
-    response = get_ai_response(initial_message)
+    response, cache = get_ai_response(initial_message)
     chat_db.add_message(chat_id, 'assistant', response)
-    return jsonify({'chat_id': chat_id, 'title': chat_title, 'response': response})
+    return jsonify({'chat_id': chat_id, 'title': chat_title, 'response': response, 'cache': cache})
 
 
 
