@@ -5,3 +5,5 @@ ibm-watsonx-ai
 markdown
 transformers
 torch
+beautifulsoup4
+lxml
