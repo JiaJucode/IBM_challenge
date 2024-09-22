@@ -62,11 +62,11 @@ const ChatPage = () => {
                     console.log("fetching chat messages for chat id: " + currentChat);
                     fetch(`http://localhost:5000/api/chat?chat_id=${currentChat}`)
                         .then(response => response.json())
-                        .then((data: {content: string, role: string}[]) => {
+                        .then((data: {chat_id: number, search_summary: string, title: string, messages: {content:string, role:string}[]}) => {
                             console.log(data);
                             setChatBoxs((prevChatBoxs) => {
                                 const newChatBoxs = prevChatBoxs;
-                                newChatBoxs[currentChat].messages = data.map((message) => message.content);
+                                newChatBoxs[currentChat].messages = data.messages.map((message) => message.content);
                                 return newChatBoxs;
                             });
                             setChatMessagesLoading(false);
@@ -219,11 +219,59 @@ const ChatPage = () => {
                         </Grid>
                     </Box>
                 </Grid>
-                <Grid key={"contents"} size={10}>
+
+                <Grid container key={"contents"} size={10}>
+                    {currentChat !== -1 ?
+                    <Grid key={"search"} size={12}
+                        sx={{
+                            overflow: 'auto',
+                            paddingLeft: '10%',
+                            paddingRight: '10%',
+                            backgroundColor: 'primary.light',
+                            height: '25%',
+                            padding: 2}}>
+                            <div>
+                                <Box
+                                    sx={{
+                                        overflow: 'auto',
+                                        justifyContent: 'flex-end',
+                                        display: 'flex',
+                                        width: '100%',
+                                        height: "20%",
+                                        padding: 2,
+                                        backgroundColor: 'primary.light',
+                                        paddingLeft: '10%',
+                                    }}
+                                >
+                                    <Typography variant='h5'>
+                                        {chatBoxs[currentChat].messages[0]}
+                                    </Typography>
+                                </Box>
+                                <Box
+                                    sx={{
+                                        overflow: 'auto',
+                                        justifyContent: 'flex-start',
+                                        width: '100%',
+                                        height: "20%",
+                                        padding: 2,
+                                        backgroundColor: 'primary.light',
+                                        paddingLeft: '10%',
+
+                                    }}
+                                >
+                                    <AssistantIcon sx={{ marginLeft: '-5%', padding: 1, fontSize: 50 }} />
+                                    <Typography variant='h5'>
+                                        {chatBoxs[currentChat].messages[1]}
+                                    </Typography>
+                                </Box>
+                            </div>
+                    </Grid>
+                    : null}
+                    <Grid key={"chat"} size={12} sx={{ position: 'fixed', marginTop: (currentChat !== -1) ? '15%' : '0%', width: '100%' }}>
                     <Box
                         sx={{
                             backgroundColor: 'primary.main',
-                            width: '100%',
+                            width: '85%',
                             height: '100dvh',
                             paddingBottom: 7,
                             overflowY: 'auto'
@@ -232,7 +280,7 @@ const ChatPage = () => {
                             <div>
                                 <Stack spacing={2} direction="column" alignItems="center">
                                     {currentChat !== -1 ?
-                                        chatBoxs[currentChat].messages.map((message, index) => (
+                                        chatBoxs[currentChat].messages.slice(2).map((message, index) => (
                                                 <Box
                                                     key={index}
                                                     sx={{
@@ -257,7 +305,7 @@ const ChatPage = () => {
                                             display: 'flex',
                                             padding: 2
                                         }}>  
-                                        <Typography variant="h3" align='center' sx={{ paddingTop: "50%"}}>
+                                        <Typography variant="h3" align='center' sx={{ paddingTop: "10%"}}>
                                             {!replyWaiting ? "Hello! What would you like to search?" : "Loading response..."}
                                         </Typography>
                                     </Box>}
@@ -296,6 +344,7 @@ const ChatPage = () => {
                             </div>
                         : null}
                     </Box>
+                    </Grid>
                 </Grid>
             </Grid>
         </div>
