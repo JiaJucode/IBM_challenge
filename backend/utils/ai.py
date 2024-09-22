@@ -1,4 +1,5 @@
 
+import json
 from textwrap import dedent
 from utils.ai_config import get_ai_response
 from utils.helpers import markdown_to_html
@@ -45,6 +46,64 @@ def process_search_query(query: str) -> str:
     response = get_ai_response(system_prompt=system_prompt, messages=[{"role": "user", "content": user_prompt}])
     return response
 
+
+def filter_search_results(search_query: str, search_results: list) -> str:
+    '''
+    Filters search results to get the top 3 results
+    '''
+    print("search_results: ", search_results)
+    print("search_query: ", search_query)
+    system_prompt = dedent(
+        """You are a content curator who specializes in filtering and selecting the most relevant results from a list of search results.
+        You are required to select the top 3 search results that are most relevant to the user's search query based on factors like accuracy, reliability, and relevance.
+        You will be given the user's search query as well as a list of search results each with a "title", "link", and "snippet" key.
+        Return the top 3 results as a list of links strings of the top 3 search identified results as follows:
+        
+        ```
+        ["<link1>", "<link2>", "<link3>"]
+        ```
+        """
+    )
+    user_prompt = dedent(
+        f"""Filter the search results for the query: "{search_query}" with the following search results:
+        {json.dumps(search_results, indent=4)}
+        """
+    )
+    response = get_ai_response(system_prompt=system_prompt, messages=[{"role": "user", "content": user_prompt}])
+    return response
+
+
+def summarize_result_website(search_query: str, website_contents: str) -> str:
+    '''
+    Summarizes and condenses the content of a website according to the search query to keep most relevant information
+    '''
+    system_prompt = dedent(
+        """You are an expert content curator specializing in extracting meaningful information and summarizing website contents.
+        You will receive contents of a website as plain text as well as a user search query. Your task is to read through the website content and extract only the essential information that directly addresses the user's query.
+        Focus exclusively on relevant information, such as code snippets, commands, key facts, etc. while excluding all unrelated details. 
+
+        Make the summary concise and formatted in a clear manner (e.g., bullet points, numbered lists). 
+        """
+,
+        # """You are an expert content curator specializing in extracting meaningful information and summarizing websites contents.
+        # You will recieve contents of a website as plain text as well as a user search query, i.e. something they're looking for, asking, etc.
+        # Your task is to read through the website content and extract the most important content only that is relevant to the user's search query and addresses it well.
+        # Make the extracted content concise, and to the point, and leave out extra information and fluff that isnt related to user's query.
+        # Keep important stuff to answer the query like relevant information, facts, code block, etc.
+        # The goal of your distillation is to provide the user with a quick answer to their search query, such that they can quickly understand without having to read through all of it and waste time.
+        # Just provide the summary in plain text format and no extra words.
+        # """
+    )
+    user_prompt = dedent(
+        f"""Search query: "{search_query}"
+
+        Website content to summarize:
+        {website_contents}
+        """
+    )
+
+    response = get_ai_response(system_prompt=system_prompt, messages=[{"role": "user", "content": user_prompt}])
+    return response
 
 def summarize_search_results(search_query: str, search_results: list) -> str:
     '''
