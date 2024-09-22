@@ -81,8 +81,8 @@ def summarize_result_website(search_query: str, website_contents: str) -> str:
         """You are an expert content curator specializing in extracting meaningful information and summarizing website contents.
         You will receive contents of a website as plain text as well as a user search query. Your task is to read through the website content and extract only the essential information that directly addresses the user's query.
         Focus exclusively on relevant information, such as code snippets, commands, key facts, etc. while excluding all unrelated details. 
-
-        Make the summary concise and formatted in a clear manner (e.g., bullet points, numbered lists). 
+        The goal of your distillation is to provide the user with a quick answer to their search query, allowing them to quickly understand the content without having to read through the entire website.
+        Give the summary only and no extra words, formatted in a clear manner (e.g., bullet points, numbered lists). 
         """
 ,
         # """You are an expert content curator specializing in extracting meaningful information and summarizing websites contents.
@@ -111,7 +111,7 @@ def summarize_search_results(search_query: str, search_results: list) -> str:
     It expects to recieve a list of search results where each result is a dictionary with the following keys:
         - title
         - link
-        - content
+        - summary
     '''
     
     # system_prompt = dedent(
@@ -128,14 +128,21 @@ def summarize_search_results(search_query: str, search_results: list) -> str:
         You are able to read through multiple search results, understand them, analyze them individually and overall for accuracy, reliability, and relevance, and distill
         the most important information into a concise summary. The goal of your distillation is to provide the user with a quick and accurate overview of
         their search query, such that they can quickly understand without having to read through all of them and waste time in finding most relevant and accurate information.
-        You recieve the user's search query and a list of search results where each result is a dictionary with "title", "link", and "content" keys. 
+        You recieve the user's search query and a list of search results where each result is a dictionary with "title", "link", and "summary" keys. 
+        Respond with only the summary of the search results in markdown format with headings, lists, etc. to make it easy to read and understand, just the summary and no extra information.
+        Don't refer to the search results or provide references to any other sources. Your response should act as a standalone summary and source of information, kind of like a webpage result of its own.
+        Format your response starting with a level 1 heading called "Summary" followed by the summary in markdown format, as follows:
+
+        # Summary
+        <<summary in markdown format>>
         """
     )
     user_prompt = dedent(
         f"""Give summary of the search results for the query: "{search_query}" with the following search results in markdown format:
 
         # Search Results:
-        {search_results}
+        {json.dumps(search_results, indent=2)}
+        [end of search results]
         """
     )
 
@@ -144,7 +151,7 @@ def summarize_search_results(search_query: str, search_results: list) -> str:
 
 
 
-def chat(query: str, context: dict, message_history: list) -> str:
+def chat(message: str, search_query: str, search_summary: str, message_history: list) -> str:
     '''
     Returns chat response for a user query
     '''
@@ -154,14 +161,11 @@ def chat(query: str, context: dict, message_history: list) -> str:
         and if a query isnt related to the information or you can't answer it for any reason, reply appropriately like telling the user that the query isn't related to the search results
         or that you can't answer it.
 
-        Search Results:
-        {context}
+        Summarized Search Results for the query: "{search_query}": 
+        {search_summary}
         """
     )
-    user_prompt = dedent(
-        f"""{query}
-        """
-    )
+    user_prompt = message
     messages = [*message_history, {"role": "user", "content": user_prompt}]
     response = get_ai_response(system_prompt=system_prompt, messages=messages)
 
