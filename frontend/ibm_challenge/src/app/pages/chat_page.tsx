@@ -225,11 +225,10 @@ const ChatPage = () => {
                     <Grid key={"search"} size={12}
                         sx={{
                             overflow: 'auto',
-                            paddingLeft: '10%',
-                            paddingRight: '10%',
+                            width: '100%',
                             backgroundColor: 'primary.light',
-                            height: '25%',
-                            padding: 2}}>
+                            height: '30%',
+                            padding: 10}}>
                             <div>
                                 <Box
                                     sx={{
@@ -237,10 +236,8 @@ const ChatPage = () => {
                                         justifyContent: 'flex-end',
                                         display: 'flex',
                                         width: '100%',
-                                        height: "20%",
                                         padding: 2,
                                         backgroundColor: 'primary.light',
-                                        paddingLeft: '10%',
                                     }}
                                 >
                                     <Typography variant='h5'>
@@ -252,14 +249,12 @@ const ChatPage = () => {
                                         overflow: 'auto',
                                         justifyContent: 'flex-start',
                                         width: '100%',
-                                        height: "20%",
                                         padding: 2,
                                         backgroundColor: 'primary.light',
-                                        paddingLeft: '10%',
 
                                     }}
                                 >
-                                    <AssistantIcon sx={{ marginLeft: '-5%', padding: 1, fontSize: 50 }} />
+                                    <AssistantIcon sx={{padding: 1, fontSize: 50 }} />
                                     <Typography variant='h5'>
                                         {chatBoxs[currentChat].messages[1]}
                                     </Typography>
