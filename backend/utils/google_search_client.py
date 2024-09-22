@@ -1,40 +1,93 @@
 import requests
 import os
+from bs4 import BeautifulSoup, Comment
 
 api_key = os.getenv("GOOGLE_API_KEY")
-search_engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID") 
+search_engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID")
 
 url = f"https://www.googleapis.com/customsearch/v1?"
 
-def search(search_query):
-    params = f"key={api_key}&exactTerms={(search_query).replace(" ", "%20")}&cx={search_engine_id}&lr=lang_en&sort=date:d:s&start=1"
-    print("searching for: ", search_query)
-    return requests.get(url + params).json()
 
-def extract_content(search_query):
-    results = search(search_query)
+def search(search_query, top_n=5):
+    # params = f"key={api_key}&q={(search_query).replace(' ', '%20')}&cx={search_engine_id}&lr=lang_en"
+    params = {
+        "key": api_key,
+        "q": search_query,
+        "cx": search_engine_id,
+        "lr": "lang_en"
+    }
+
+    print("searching for: ", search_query)
+    search_results = requests.get(url, params=params).json()
+
+    if "error" in search_results or "items" not in search_results:
+        print("error: ", search_results)
+        return []
+
+    top_results = []
+    for item in search_results["items"][:top_n]:
+        top_results.append({
+            "title": item["title"],
+            "link": item["link"],
+            "snippet": item["snippet"]
+        })
+
+    return top_results
+
+
+def scrape_contents(website_links: list) -> list:
+    '''
+    Scrape contents of websites from a list of website links.
+    Returns html content of each website as a single string for each website.
+    '''
     contents = []
-    if "items" not in results:
-        print("error: no items in results")
-        print(results)
-        return {}
-    for item in results["items"]:
-        link = item["link"]
-        title = item["title"]
-        # some websites may block the request
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
+
+    for link in website_links:
         try:
-            html = requests.get(link, timeout=5)
-        except requests.exceptions.Timeout:
-            print("website: ", link, " Timeout")
-            continue
+            response = requests.get(link, headers=headers)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.text, "lxml")
+
+            # remove unwanted tags
+            for tag in soup(["script", "style", "meta", "link", "head", "title", "header", "footer", "nav", "form"]):
+                tag.decompose()
+
+            # remove html attributes from all tags
+            for tag in soup.find_all(True):
+                tag.attrs = {}
+
+            # remove all html  comments
+            for element in soup(text=lambda text: isinstance(text, Comment)):
+                element.extract()   
+
+            # store contents
+            contents.append(' '.join(soup.stripped_strings))
+            # contents.append(soup.prettify())
+
         except Exception as e:
-            print("website: ", link, " Error: ", e)
-            continue
-        if html.status_code != 200:
-            print("website: ", link, " Error: ", html.status_code)
-            continue
-        contents.append({"title": title, "content": html.text, "link": link})
+            print(f"Failing to scrape website: {link}: {e}")
+            contents.append("")
     return contents
+
+
+if __name__ == "__main__":
+    import json
+
+    query = "Write a flask route that returns hello world"
+    results = search(query, top_n=1)
+
+    print("Search Results:")
+    print(json.dumps(results, indent=4))
+    print("\n\n")
+
+    print("Scraped Contents:")
+    scraped_contents = scrape_contents([result["link"] for result in results])
+    scrape_contents = {result["link"]: content for result, content in zip(results, scraped_contents)}
+    print(json.dumps(scrape_contents, indent=4))
 
 # print(json.dumps(search(request_builder()), indent=4))
 # example output:
@@ -71,7 +124,7 @@ def extract_content(search_query):
 #            "htmlSnippet": "Learn about the <b>Test</b> to Treat initiative, which helps people get tested for COVID-19 and receive treatment, if appropriate, in one location.",
 #            "formattedUrl": "https://aspr.hhs.gov/TestToTreat/Pages/default.aspx",
 #            "htmlFormattedUrl": "https://aspr.hhs.gov/<b>Test</b>ToTreat/Pages/default.aspx",
-#pagemap is optional
+# pagemap is optional
 #            "pagemap": {
 #                "cse_thumbnail": [
 #                    {
