@@ -4,6 +4,39 @@ from textwrap import dedent
 def markdown_to_html(markdown_text):
     return markdown.markdown(dedent(markdown_text.strip()), extensions=['fenced_code', 'tables', 'codehilite'])
 
+def recursive_truncate(text, max_length):
+    '''
+        Tries to truncate the text to the max_length by removing words from the middle of the text.
+        If text is already less than max_length, returns the text as is.
+        If text is longer than max_length, removes words from the middle of the text and replaces them with a truncation text.
+        If text is still longer than max_length, then removes words from middle of left and right halves of the text and replaces them with a truncation text, recursively.
+        
+    '''
+    l = len(text)
+    chunks = [text]
+
+    while chunks:
+        trial_text = f"...".join(chunks)
+        print(chunks, trial_text, len(trial_text), "\n")
+        if len(trial_text) <= max_length:
+            return trial_text
+        else:
+            for _ in range(len(chunks)):
+                chunk = chunks.pop(0)
+                half = len(chunk) // 2
+                
+                left = chunk[:half]
+                left = left[:left.rfind(" ")].strip()
+
+                right = chunk[half:]
+                right = right[right.find(" "):].strip()
+
+                chunks.append(left)
+                chunks.append(right)
+                # print(chunks)
+        input()  # for debugging, to stop at each iteration
+
+    return trial_text
 
 
 # trying out
@@ -56,5 +89,9 @@ if __name__ == "__main__":
 
     """
     )
-    html = markdown_to_html(md)
-    print(html)
+    # html = markdown_to_html(md)
+    # print(html)
+
+    text = "This is a long example sentence that we want to truncate intelligently while preserving the important parts of the text. The sentence is long and yaps on and on."
+    max_length = 15
+    truncated_text = recursive_truncate(text, max_length)
