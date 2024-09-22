@@ -10,7 +10,7 @@ chat_db = ChatsDatabase()
 
 def get_ai_response(message):
     search_query = bot.process_search_query(message)
-    website_contents = google_search.extract_content(search_query)
+    website_contents = google_search.scrape_contents(search_query)
     return bot.summarize_search_results(search_query, website_contents)
 
 # Enable CORS for requests only to /api/* from frontend server
@@ -33,12 +33,13 @@ def hello():
     chats = chat_db.get_chats(uid)
     return jsonify({'chats': chats})
 
+
 @app.route('/api/start', methods=['POST'])
 def create_chat():
     '''
     Request format:
     {
-        'initial_message': <message>
+        'search_query': <message>
     }
 
     Response format:
@@ -48,22 +49,29 @@ def create_chat():
         'response': <response>
     }
     '''
-    # get chat title
-    initial_message = request.get_json()['initial_message']
-    chat_title = bot.create_chat_title(initial_message)
-
-    # create chat in Chats table
-    user_id = 0
-    chat_id = chat_db.create_chat(user_id, chat_title)
-
-    # add initial message to Messages table
-    chat_db.add_message(chat_id, 'user', initial_message)
     
-    # get search response
-    response = get_ai_response(initial_message)
-    chat_db.add_message(chat_id, 'assistant', response)
-    return jsonify({'chat_id': chat_id, 'title': chat_title, 'response': response})
+    search_query = request.get_json()['search_query']
 
+    # perform search
+    search_results = google_search.search(search_query, top_n=3)
+
+    # scrape contents of each search result website
+    scraped_contents = google_search.scrape_contents([search_result["link"] for search_result in search_results])
+    for i, scraped_content in enumerate(scraped_contents):
+        search_results[i]["content"] = bot.get_middle_truncated_text(scraped_content)
+
+    # generate summary for each search result
+    for i, search_result in enumerate(search_results):
+        search_result["summary"] = bot.summarize_result_website(search_query, search_result["content"])
+
+    # summarize overall search results
+    search_summary = bot.summarize_search_results(search_query, search_results)
+
+    # create chat for the search
+    user_id = 0  # no user auth yet
+    chat_id = chat_db.create_chat(uid=user_id, search_query=search_query, search_summary=search_summary)
+    
+    return jsonify({'chat_id': chat_id, 'title': search_query, 'response': search_summary})
 
 
 @app.route('/api/chat', methods=['GET'])
@@ -91,6 +99,7 @@ def load_chat():
     chat = chat_db.get_chat(chat_id)
     return jsonify(chat)
 
+
 @app.route('/api/ai_response', methods=['POST'])
 def get_response():
     '''
@@ -99,7 +108,7 @@ def get_response():
     Request format:
     {
         'chat_id': <chat_id>,
-        'message': <message>
+        'message': <message>,
     }
 
     Response format:
@@ -112,14 +121,26 @@ def get_response():
     request_data = request.get_json()
     chat_id = request_data.get('chat_id')
     message = request_data.get('message')
-    chat_db.add_message(chat_id, 'user', message)
 
+    chat = chat_db.get_chat(chat_id)
+    search_query = chat['title']
+    search_summary = chat['search_summary']
+    message_history = chat['messages'][-4:]  # last 2 message pairs
+    
     # Get AI response
-    response = get_ai_response(message)
-    chat_db.add_message(chat_id, 'assistant', response)
+    # response = get_ai_response(message)
+    response = bot.chat(query=message, context=chat_db.get_chat(chat_id))
+
+    # Add new messages to chat history
+    chat_db.add_message(chat_id=chat_id, role='user', content=message)
+    chat_db.add_message(chat_id=chat_id, role='assistant', content=response)
 
     return jsonify({'response': response})
 
+
+@app.teardown_appcontext
+def close_connection(exception):
+    chat_db.close()
 
 
 if __name__ == '__main__':
