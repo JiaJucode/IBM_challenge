@@ -66,7 +66,12 @@ const ChatPage = () => {
                             console.log(data);
                             setChatBoxs((prevChatBoxs) => {
                                 const newChatBoxs = prevChatBoxs;
-                                newChatBoxs[currentChat].messages = data.messages.map((message) => message.content);
+                                newChatBoxs[currentChat].messages = [];
+                                newChatBoxs[currentChat].messages.push(data.title);
+                                newChatBoxs[currentChat].messages.push(data.search_summary);
+                                data.messages.forEach((message) => {
+                                    newChatBoxs[currentChat].messages.push(message.role === 'user' ? message.content : message.content);
+                                });
                                 return newChatBoxs;
                             });
                             setChatMessagesLoading(false);
@@ -254,9 +259,10 @@ const ChatPage = () => {
 
                                     }}
                                 >
-                                    <AssistantIcon sx={{padding: 1, fontSize: 50 }} />
+                                    <AssistantIcon sx={{ marginLeft: '-5%', padding: 1, fontSize: 50 }} />
                                     <Typography variant='h5'>
-                                        {chatBoxs[currentChat].messages[1]}
+                                        {/* {chatBoxs[currentChat].messages[1]} */}
+                                        <div dangerouslySetInnerHTML={{ __html: chatBoxs[currentChat].messages[1] }} />
                                     </Typography>
                                 </Box>
                             </div>
