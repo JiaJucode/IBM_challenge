@@ -41,21 +41,16 @@ prompt_template = \
 """
 
 def get_ai_response(system_prompt: str,  messages: List[dict[str, str]], model=granite_instruct_model) -> str:
-    print("system_prompt: ", system_prompt)
-    print("messages: ", messages)
-
     prompt = "\n".join([
         prompt_template.format(role='system', message=system_prompt),
         *[prompt_template.format(role=message['role'], message=message['content']) for message in messages],
         prompt_template.format(role='assistant', message=''),
     ])
     generated_response = model.generate(prompt=prompt)
-    print("generated_response: ", generated_response)
     
     response_text = generated_response['results'][0]['generated_text']
     response_text = response_text[response_text.index('<|assistant|>') + len('<|assistant|>'):].strip()
-    print("response_text: ", response_text)
-    
+
     return response_text
 
 
