@@ -1,8 +1,36 @@
 import markdown  
 from textwrap import dedent
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 
 def markdown_to_html(markdown_text):
     return markdown.markdown(dedent(markdown_text.strip()), extensions=['fenced_code', 'tables', 'codehilite'])
+
+
+def get_middle_x_chars(s, x):
+    if len(s) <= x:
+        return s
+    else:
+        start = (len(s) - x) // 2
+        end = start + x
+        return s[start:end]
+    
+
+def get_middle_truncated_text(text, max_tokens=4000):
+        
+        if not text or not text.strip():
+            return ""
+
+        text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+            chunk_size=max_tokens,
+            chunk_overlap=min(200, max_tokens // 2),
+        )
+        texts = text_splitter.split_text(text)
+
+        # get middle chunk
+        print(texts, len(texts) // 2)
+        middle_chunk = texts[max(0, (len(texts) // 2) - 1)]
+        return middle_chunk
 
 def recursive_truncate(text, max_length):
     '''
@@ -94,4 +122,12 @@ if __name__ == "__main__":
 
     text = "This is a long example sentence that we want to truncate intelligently while preserving the important parts of the text. The sentence is long and yaps on and on."
     max_length = 15
-    truncated_text = recursive_truncate(text, max_length)
+    # truncated_text = recursive_truncate(text, max_length)
+
+
+    # Example usage
+    string = "Hello, this is a sample string."
+    string = ""
+    x = 3
+    result = get_middle_truncated_text(text=string, max_tokens=x)
+    print(result)
