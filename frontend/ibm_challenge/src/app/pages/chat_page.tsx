@@ -196,7 +196,6 @@ const ChatPage = () => {
                                 </Button>
                             </Grid>
                             {!chatListLoading ?
-                                
                                 Object.keys(chatBoxs).map((chatID: string) => (
                                     <Grid key={chatID} size={12} sx={{ width: '100%' }}>
                                         <Button sx={{ width: '100%' }} onClick={() => handleSelectChat(Number(chatID))}>
@@ -213,7 +212,6 @@ const ChatPage = () => {
                                         </Button>
                                     </Grid>)
                                 )
-                                
                             : null}
                         </Grid>
                     </Box>
@@ -231,8 +229,7 @@ const ChatPage = () => {
                             <div>
                                 <Stack spacing={2} direction="column" alignItems="center">
                                     {currentChat !== -1 ?
-                                        <div>
-                                            {chatBoxs[currentChat].messages.map((message, index) => (
+                                        chatBoxs[currentChat].messages.map((message, index) => (
                                                 <Box
                                                     key={index}
                                                     sx={{
@@ -249,8 +246,7 @@ const ChatPage = () => {
                                                         {message}
                                                     </Typography>
                                                 </Box>
-                                            ))}
-                                        </div>
+                                            ))
                                     : 
                                     <Box
                                         sx={{
