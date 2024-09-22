@@ -11,13 +11,13 @@ from ibm_watsonx_ai.metanames import GenTextParamsMetaNames as GenParams
 load_dotenv()  
 ibm_api_key = os.getenv("IBM_API_KEY")
 ibm_project_id = os.getenv("IBM_PROJECT_ID")
+# print(ibm_api_key, ibm_project_id)
+# exit(1)
 
-MODEL_ID = ModelTypes.GRANITE_13B_CHAT_V2
-
-model = Model(
-    model_id=MODEL_ID,
+create_model = lambda model_id: Model(
+    model_id=model_id,
     params={
-        GenParams.MAX_NEW_TOKENS: 900,
+        GenParams.MAX_NEW_TOKENS: 3000,
         GenParams.RETURN_OPTIONS: {
             'input_text': True,
             'generated_tokens': True,
@@ -30,13 +30,19 @@ model = Model(
     project_id=ibm_project_id,
 )
 
+granite_chat_model = create_model(ModelTypes.GRANITE_13B_CHAT_V2)
+# granite_instruct_model = create_model(ModelTypes.GRANITE_13B_INSTRUCT_V2)
+granite_instruct_model = granite_chat_model
+
 
 prompt_template = \
 """<|{role}|>
 {message}
 """
 
-def get_ai_response(system_prompt: str,  messages: List[dict[str, str]]) -> str:
+def get_ai_response(system_prompt: str,  messages: List[dict[str, str]], model=granite_instruct_model) -> str:
+    print("system_prompt: ", system_prompt)
+    print("messages: ", messages)
 
     prompt = "\n".join([
         prompt_template.format(role='system', message=system_prompt),
@@ -44,9 +50,11 @@ def get_ai_response(system_prompt: str,  messages: List[dict[str, str]]) -> str:
         prompt_template.format(role='assistant', message=''),
     ])
     generated_response = model.generate(prompt=prompt)
+    print("generated_response: ", generated_response)
     
     response_text = generated_response['results'][0]['generated_text']
     response_text = response_text[response_text.index('<|assistant|>') + len('<|assistant|>'):].strip()
+    print("response_text: ", response_text)
     
     return response_text
 
