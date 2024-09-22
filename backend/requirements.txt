@@ -5,3 +5,4 @@ ibm-watsonx-ai
 markdown
 transformers
 torch
+html2text

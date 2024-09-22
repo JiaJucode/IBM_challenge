@@ -1,5 +1,5 @@
 import requests
-import os
+import os, html2text
 
 api_key = os.getenv("GOOGLE_API_KEY")
 search_engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID") 
@@ -11,7 +11,7 @@ def search(search_query):
     print("searching for: ", search_query)
     return requests.get(url + params).json()
 
-def extract_content(search_query):
+def extract_content(search_query, content_filter=lambda query, response: True):
     results = search(search_query)
     contents = []
     if "items" not in results:
@@ -33,7 +33,9 @@ def extract_content(search_query):
         if html.status_code != 200:
             print("website: ", link, " Error: ", html.status_code)
             continue
-        contents.append({"title": title, "content": html.text, "link": link})
+        content = html2text.html2text(html.text)
+        if content_filter(search_query, content):
+            contents.append({"title": title, "content":content, "link": link})
     return contents
 
 # print(json.dumps(search(request_builder()), indent=4))
