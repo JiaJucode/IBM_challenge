@@ -14,9 +14,11 @@ interface ChatBox {
     messages: string[];
 }
 
+// TODO create default new chat page
+
 const ChatPage = () => {
     const [chatBoxs, setChatBoxs] = useState<{[id: number]: ChatBox}>({});
-    const [currentChat, setCurrentChat] = useState<number | null>(null);
+    const [currentChat, setCurrentChat] = useState<number>(-1);
     const [message, setMessage] = useState('');
     const chatBottomRef = useRef<HTMLDivElement>(null);
     const [replyWaiting, setReplyWaiting] = useState(false);
@@ -25,53 +27,66 @@ const ChatPage = () => {
 
     useEffect(() => {
         // Fetch chat list from backend
-        fetch('http://localhost:5000/api/chats')
+        fetch('http://localhost:5000/api/hello')
             .then(response => response.json())
-            .then((data: { id: number; search_query: string; summarized_search_results: string }[]) => {
-                let tempChatBoxs: {[id: number]: ChatBox} = {};
-                data.forEach((chat) => {
-                    tempChatBoxs = {
-                        ...tempChatBoxs,
-                        [chat.id]: {
-                            name: chat.search_query,
-                            messages: []
-                        }
-                    }
-                });
-                setChatBoxs(tempChatBoxs);
+            .then((data: {chats: { chat_id: number; title: string}[]}) => {
+                console.log(data);
+                if (data.chats.length !== 0) {
+                    setChatBoxs((prevChatBoxs) => {
+                        const newChatBoxs = prevChatBoxs;
+                        data.chats.forEach((chat) => {
+                            newChatBoxs[chat.chat_id] = {
+                                name: chat.title,
+                                messages: []
+                            };
+                        });
+                        return newChatBoxs;
+                    });
+                }
+                console.log(chatBoxs);
                 setChatListLoading(false);
             })
             .catch((error) => {
                 console.error('Error:', error);
             });
-    }, []);
+    }, [chatBoxs]);
 
     useEffect(() => {
         if (!chatMessagesLoading) {
             chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
         else {
-            if (currentChat !== null) {
+            if (currentChat !== -1) {
                 if (chatBoxs[currentChat].messages.length === 0) {
                     // Fetch chat messages for the selected chat
-                    fetch(`http://localhost:5000/api/chat/${currentChat}`)
+                    console.log("fetching chat messages for chat id: " + currentChat);
+                    fetch(`http://localhost:5000/api/chat?chat_id=${currentChat}`)
                         .then(response => response.json())
-                        .then((data: { chat: { search_query: string }; messages: { role: string; content: string }[] }) => {
-                            if (data.messages.length > 0) {
-                                setChatBoxs((prevChatBoxs) => {
-                                    prevChatBoxs[currentChat].messages = data.messages.map(m => m.content);
-                                    return prevChatBoxs;
+                        .then((data: {chat_id: number, search_summary: string, title: string, messages: {content:string, role:string}[]}) => {
+                            console.log(data);
+                            setChatBoxs((prevChatBoxs) => {
+                                const newChatBoxs = prevChatBoxs;
+                                newChatBoxs[currentChat].messages = [];
+                                newChatBoxs[currentChat].messages.push(data.title);
+                                newChatBoxs[currentChat].messages.push(data.search_summary);
+                                data.messages.forEach((message) => {
+                                    newChatBoxs[currentChat].messages.push(message.role === 'user' ? message.content : message.content);
                                 });
-                                setChatMessagesLoading(false);
-                            }
+                                return newChatBoxs;
+                            });
+                            setChatMessagesLoading(false);
                         })
                         .catch((error) => {
                             console.error('Error:', error);
+                            setChatMessagesLoading(false);
                         });
+                }
+                else {
+                    setChatMessagesLoading(false);
                 }
             }
         }
-    }, [chatMessagesLoading]);
+    }, [chatMessagesLoading, chatBoxs, currentChat]);
 
     useEffect(() => {
         if (!replyWaiting) {
@@ -80,45 +95,78 @@ const ChatPage = () => {
     }, [replyWaiting]);
 
     const handleSelectChat = (chatID: number) => {
-        setCurrentChat(chatID);
-        setChatMessagesLoading(true);
+        if (chatID < -1) {
+            console.log("selected chat id is invalid");
+        }
+        else {
+            setCurrentChat(chatID);
+            setChatMessagesLoading(chatID !== -1);
+        }
     }
 
     const sendRequest = () => {
         setReplyWaiting(true);
-        if (currentChat !== null) {
+
+        if (currentChat === -1) {
+            // send /api/start request
+            fetch('http://localhost:5000/api/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    search_query: message
+                })
+            }).then(response => response.json())
+                .then((data: { chat_id: number, title: string, response: string}) => {
+                    if (data.response.length > 0) {
+                        setChatBoxs((prevChatBoxs) => {
+                            const newChatBoxs = prevChatBoxs;
+                            newChatBoxs[data.chat_id] = {
+                                name: data.title,
+                                messages: [message, data.response]
+                            };
+                            return newChatBoxs;
+                        });
+                        setCurrentChat(data.chat_id);
+                    }
+                    setReplyWaiting(false);
+                })
+        }
+        else {
             setChatBoxs((prevChatBoxs) => {
                 const newChatBoxs = prevChatBoxs;
                 newChatBoxs[currentChat].messages.push(message);
                 return newChatBoxs;
             });
-        }
 
-        // Send the new message to backend and get AI response
-        fetch('http://localhost:5000/api/ai_response', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                chat_id: currentChat,  // Updated key to match backend
-                message: message
-            })
-        }).then(response => response.json())
-            .then((data: { response: string }) => {
-                if (data.response.length > 0 && currentChat !== null) {
-                    setChatBoxs((prevChatBoxs) => {
-                        const newChatBoxs = prevChatBoxs;
-                        newChatBoxs[currentChat].messages.push(data.response);
-                        return newChatBoxs;
-                    });
-                }
-                setReplyWaiting(false);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                setReplyWaiting(false);
-            });
+            // send /api/ai_response request
+            fetch('http://localhost:5000/api/ai_response', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: currentChat,
+                    message: message
+                })
+            }).then(response => response.json())
+                .then((data: { response: string }) => {
+                    if (data.response.length > 0 && currentChat !== -1) {
+                        setChatBoxs((prevChatBoxs) => {
+                            const newChatBoxs = prevChatBoxs;
+                            newChatBoxs[currentChat].messages.push(data.response);
+                            return newChatBoxs;
+                        });
+                    }
+                    setReplyWaiting(false);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    setReplyWaiting(false);
+                });
+            
+        }
     }
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -140,52 +188,131 @@ const ChatPage = () => {
                             height: '100dvh',
                         }}
                     >
-                        {!chatListLoading ?
                         <Grid container spacing={2} direction="column" alignItems="center" padding={1} 
                             sx={{ width: '100%', height: '100%' }}>
-                            {Object.keys(chatBoxs).map((chatID: string) => (
-                                <Grid key={chatID} size={12} sx={{ width: '100%' }}>
-                                    <Button sx={{ width: '100%' }} onClick={() => handleSelectChat(Number(chatID))}>
-                                        <Typography variant="h5" sx={{ textAlign: 'center' }} color='text.primary'>
-                                            {chatBoxs[Number(chatID)].name}
-                                        </Typography>
-                                    </Button>
-                                </Grid>
-                            ))}
+                            <h1>Search history</h1>
+                            <Grid key={-1} size={12} sx={{ width: '100%' }}>
+                                <Button sx={{ width: '100%' }} onClick={() => handleSelectChat(-1)}>
+                                    <Typography sx={{ textAlign: 'center', 
+                                                    fontSize: '25px', 
+                                                    textTransform: 'none', 
+                                                    whiteSpace: 'nowrap',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    padding:2,
+                                                    border: 1
+                                            }} color='text.primary'>
+                                        New Search
+                                    </Typography>
+                                </Button>
+                            </Grid>
+                            {!chatListLoading ?
+                                Object.keys(chatBoxs).map((chatID: string) => (
+                                    <Grid key={chatID} size={12} sx={{ width: '100%' }}>
+                                        <Button sx={{ width: '100%' }} onClick={() => handleSelectChat(Number(chatID))}>
+                                            <Typography 
+                                                sx={{ textAlign: 'center', 
+                                                    fontSize: '20px', 
+                                                    textTransform: 'none', 
+                                                    whiteSpace: 'nowrap',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                            }} color='text.primary'>
+                                                {chatBoxs[Number(chatID)].name}
+                                            </Typography>
+                                        </Button>
+                                    </Grid>)
+                                )
+                            : null}
                         </Grid>
-                        : null}
                     </Box>
                 </Grid>
-                <Grid key={"contents"} size={10}>
+
+                <Grid container key={"contents"} size={10}>
+                    {currentChat !== -1 ?
+                    <Grid key={"search"} size={12}
+                        sx={{
+                            overflow: 'auto',
+                            width: '100%',
+                            backgroundColor: 'primary.light',
+                            height: '30%',
+                            padding: 10}}>
+                            <div>
+                                <Box
+                                    sx={{
+                                        overflow: 'auto',
+                                        justifyContent: 'flex-end',
+                                        display: 'flex',
+                                        width: '100%',
+                                        padding: 2,
+                                        backgroundColor: 'primary.light',
+                                    }}
+                                >
+                                    <Typography variant='h5'>
+                                        {chatBoxs[currentChat].messages[0]}
+                                    </Typography>
+                                </Box>
+                                <Box
+                                    sx={{
+                                        overflow: 'auto',
+                                        justifyContent: 'flex-start',
+                                        width: '100%',
+                                        padding: 10,
+                                        backgroundColor: 'primary.light',
+
+                                    }}
+                                >
+                                    <AssistantIcon sx={{ marginLeft: '-5%', padding: 1, fontSize: 50 }} />
+                                    <Typography variant='h6'>
+                                        {/* {chatBoxs[currentChat].messages[1]} */}
+                                        <div dangerouslySetInnerHTML={{ __html: chatBoxs[currentChat].messages[1] }} />
+                                    </Typography>
+                                </Box>
+                            </div>
+                    </Grid>
+                    : null}
+                    <Grid key={"chat"} size={12} sx={{ position: 'fixed', marginTop: (currentChat !== -1) ? '15%' : '0%', width: '100%' }}>
                     <Box
                         sx={{
                             backgroundColor: 'primary.main',
-                            width: '100%',
+                            width: '85%',
                             height: '100dvh',
                             paddingBottom: 7,
                             overflowY: 'auto'
                         }}>
-                        {currentChat !== null && !chatMessagesLoading ?
+                        {!chatMessagesLoading ?
                             <div>
                                 <Stack spacing={2} direction="column" alignItems="center">
-                                    {chatBoxs[currentChat].messages.map((message, index) => (
-                                        <Box
-                                            key={index}
-                                            sx={{
-                                                justifyContent: index % 2 === 0 ? 'flex-end' : 'flex-start',
-                                                display: 'flex',
-                                                width: '70%',
-                                                padding: 2,
-                                            }}
-                                        >
-                                            {index % 2 === 1 ? (
-                                                <AssistantIcon sx={{ marginLeft: '-5%', padding: 1, fontSize: 50 }} />
-                                            ) : null}
-                                            <Typography variant='h5'>
-                                                {message}
-                                            </Typography>
-                                        </Box>
-                                    ))}
+                                    {currentChat !== -1 ?
+                                        chatBoxs[currentChat].messages.slice(2).map((message, index) => (
+                                                <Box
+                                                    key={index}
+                                                    sx={{
+                                                        justifyContent: index % 2 === 0 ? 'flex-end' : 'flex-start',
+                                                        display: 'flex',
+                                                        width: '70%',
+                                                        padding: 2,
+                                                    }}
+                                                >
+                                                    {index % 2 === 1 ? (
+                                                        <AssistantIcon sx={{ marginLeft: '-5%', padding: 1, fontSize: 50 }} />
+                                                    ) : null}
+                                                    <Typography variant='h5'>
+                                                        <div dangerouslySetInnerHTML={{ __html: message}} />
+                                                    </Typography>
+                                                </Box>
+                                            ))
+                                    : 
+                                    <Box
+                                        sx={{
+                                            justifyContent: 'center',
+                                            display: 'flex',
+                                            padding: 2
+                                        }}>  
+                                        <Typography variant="h3" align='center' sx={{ paddingTop: "10%"}}>
+                                            {!replyWaiting ? "Hello! What would you like to search?" : "Loading response..."}
+                                        </Typography>
+                                    </Box>}
                                 </Stack>
                                 <div ref={chatBottomRef} />
                                 <TextField variant='outlined' multiline fullWidth value={message} 
@@ -221,6 +348,7 @@ const ChatPage = () => {
                             </div>
                         : null}
                     </Box>
+                    </Grid>
                 </Grid>
             </Grid>
         </div>

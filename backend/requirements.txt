@@ -3,5 +3,10 @@ flask-cors
 python-dotenv
 ibm-watsonx-ai
 markdown
-transformers
-torch
+# transformers
+# torch
+beautifulsoup4
+lxml
+langchain
+langchain-community
+tiktoken
