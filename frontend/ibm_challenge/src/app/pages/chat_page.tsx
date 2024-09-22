@@ -184,8 +184,14 @@ const ChatPage = () => {
                             sx={{ width: '100%', height: '100%' }}>
                             <Grid key={-1} size={12} sx={{ width: '100%' }}>
                                 <Button sx={{ width: '100%' }} onClick={() => handleSelectChat(-1)}>
-                                    <Typography variant="h5" sx={{ textAlign: 'center' }} color='text.primary'>
-                                        New Chat
+                                    <Typography sx={{ textAlign: 'center', 
+                                                    fontSize: '30px', 
+                                                    textTransform: 'none', 
+                                                    whiteSpace: 'nowrap',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                            }} color='text.primary'>
+                                        New chat
                                     </Typography>
                                 </Button>
                             </Grid>
@@ -194,7 +200,14 @@ const ChatPage = () => {
                                 {Object.keys(chatBoxs).map((chatID: string) => (
                                     <Grid key={chatID} size={12} sx={{ width: '100%' }}>
                                         <Button sx={{ width: '100%' }} onClick={() => handleSelectChat(Number(chatID))}>
-                                            <Typography variant="h5" sx={{ textAlign: 'center' }} color='text.primary'>
+                                            <Typography 
+                                                sx={{ textAlign: 'center', 
+                                                    fontSize: '30px', 
+                                                    textTransform: 'none', 
+                                                    whiteSpace: 'nowrap',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                            }} color='text.primary'>
                                                 {chatBoxs[Number(chatID)].name}
                                             </Typography>
                                         </Button>
@@ -238,7 +251,17 @@ const ChatPage = () => {
                                                 </Box>
                                             ))}
                                         </div>
-                                    : null}
+                                    : 
+                                    <Box
+                                        sx={{
+                                            justifyContent: 'center',
+                                            display: 'flex',
+                                            padding: 2
+                                        }}>  
+                                        <Typography variant="h3" align='center' sx={{ paddingTop: "50%"}}>
+                                            Hello! What would you like to search?
+                                        </Typography>
+                                    </Box>}
                                 </Stack>
                                 <div ref={chatBottomRef} />
                                 <TextField variant='outlined' multiline fullWidth value={message} 
