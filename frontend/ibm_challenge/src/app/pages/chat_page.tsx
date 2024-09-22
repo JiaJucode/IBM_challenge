@@ -258,7 +258,7 @@ const ChatPage = () => {
                                             padding: 2
                                         }}>  
                                         <Typography variant="h3" align='center' sx={{ paddingTop: "50%"}}>
-                                            Hello! What would you like to search?
+                                            {!replyWaiting ? "Hello! What would you like to search?" : "Loading response..."}
                                         </Typography>
                                     </Box>}
                                 </Stack>
