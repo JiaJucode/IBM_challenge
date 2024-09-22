@@ -4,15 +4,31 @@ from flask_cors import CORS
 from database import ChatsDatabase
 import utils.ai as bot
 import utils.google_search_client as google_search
+from utils.language_model import sentence_similarity
 
 app = Flask(__name__)
 chat_db = ChatsDatabase()
 
-def get_ai_response(message):
+def get_ai_response(message, cache_num=0) -> tuple[str, list]:
     search_query = bot.process_search_query(message)
-    website_contents = google_search.extract_content(search_query)
-    return bot.summarize_search_results(search_query, website_contents)
+    similar_searches = []
 
+    if cache_num:
+        history = chat_db.get_searches()
+        similarity_scores = sentence_similarity(search_query, [entry["search_term"] for entry in history])
+        for i in range(len(history)):
+            if len(similar_searches) > cache_num:
+                break
+            if similarity_scores[i] > 0.9 and len(similar_searches):
+                similar_searches.append(history[i])
+
+    if similar_searches:
+        website_contents = google_search.extract_content(search_query)
+        return bot.summarize_search_results(search_query, website_contents), []
+    else:
+        return f"I found {len(similar_searches)} similar searches in the history matching your requirement.\
+              Click on the search terms to view previous seaches or perform new search on: {search_query}", similar_searches
+     
 # Enable CORS for requests only to /api/* from frontend server
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
@@ -115,10 +131,10 @@ def get_response():
     chat_db.add_message(chat_id, 'user', message)
 
     # Get AI response
-    response = get_ai_response(message)
+    response, cache = get_ai_response(message)
     chat_db.add_message(chat_id, 'assistant', response)
 
-    return jsonify({'response': response})
+    return jsonify({'response': response, 'cache': cache})
 
 
 

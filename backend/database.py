@@ -1,5 +1,4 @@
 import sqlite3
-from utils.language_model import sentence_similarity    
 
 class Database:
     _instance = None
