@@ -190,16 +190,19 @@ const ChatPage = () => {
                     >
                         <Grid container spacing={2} direction="column" alignItems="center" padding={1} 
                             sx={{ width: '100%', height: '100%' }}>
+                            <h1>Search history</h1>
                             <Grid key={-1} size={12} sx={{ width: '100%' }}>
                                 <Button sx={{ width: '100%' }} onClick={() => handleSelectChat(-1)}>
                                     <Typography sx={{ textAlign: 'center', 
-                                                    fontSize: '30px', 
+                                                    fontSize: '25px', 
                                                     textTransform: 'none', 
                                                     whiteSpace: 'nowrap',
                                                     overflow: 'hidden',
                                                     textOverflow: 'ellipsis',
+                                                    padding:2,
+                                                    border: 1
                                             }} color='text.primary'>
-                                        New chat
+                                        New Search
                                     </Typography>
                                 </Button>
                             </Grid>
@@ -209,7 +212,7 @@ const ChatPage = () => {
                                         <Button sx={{ width: '100%' }} onClick={() => handleSelectChat(Number(chatID))}>
                                             <Typography 
                                                 sx={{ textAlign: 'center', 
-                                                    fontSize: '30px', 
+                                                    fontSize: '20px', 
                                                     textTransform: 'none', 
                                                     whiteSpace: 'nowrap',
                                                     overflow: 'hidden',
@@ -254,13 +257,13 @@ const ChatPage = () => {
                                         overflow: 'auto',
                                         justifyContent: 'flex-start',
                                         width: '100%',
-                                        padding: 2,
+                                        padding: 10,
                                         backgroundColor: 'primary.light',
 
                                     }}
                                 >
                                     <AssistantIcon sx={{ marginLeft: '-5%', padding: 1, fontSize: 50 }} />
-                                    <Typography variant='h5'>
+                                    <Typography variant='h6'>
                                         {/* {chatBoxs[currentChat].messages[1]} */}
                                         <div dangerouslySetInnerHTML={{ __html: chatBoxs[currentChat].messages[1] }} />
                                     </Typography>
@@ -295,7 +298,7 @@ const ChatPage = () => {
                                                         <AssistantIcon sx={{ marginLeft: '-5%', padding: 1, fontSize: 50 }} />
                                                     ) : null}
                                                     <Typography variant='h5'>
-                                                        {message}
+                                                        <div dangerouslySetInnerHTML={{ __html: message}} />
                                                     </Typography>
                                                 </Box>
                                             ))

@@ -8,7 +8,7 @@ search_engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID")
 url = f"https://www.googleapis.com/customsearch/v1?"
 
 
-def search(search_query, top_n=5):
+def search(search_query, top_n=3):
     # params = f"key={api_key}&q={(search_query).replace(' ', '%20')}&cx={search_engine_id}&lr=lang_en"
     params = {
         "key": api_key,
