@@ -76,6 +76,9 @@ const ChatPage = () => {
                             setChatMessagesLoading(false);
                         });
                 }
+                else {
+                    setChatMessagesLoading(false);
+                }
             }
         }
     }, [chatMessagesLoading, chatBoxs, currentChat]);
