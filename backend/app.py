@@ -129,7 +129,7 @@ def get_response():
     
     # Get AI response
     # response = get_ai_response(message)
-    response = bot.chat(query=message, context=chat_db.get_chat(chat_id))
+    response = bot.chat(message=message, search_query=search_query, search_summary=search_summary, message_history=message_history)
 
     # Add new messages to chat history
     chat_db.add_message(chat_id=chat_id, role='user', content=message)
