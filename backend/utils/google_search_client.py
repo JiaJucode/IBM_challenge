@@ -1,6 +1,7 @@
 import requests
 import os
 from bs4 import BeautifulSoup, Comment
+import random
 
 api_key = os.getenv("GOOGLE_API_KEY")
 search_engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID")
@@ -18,10 +19,14 @@ def search(search_query, top_n=5):
     }
 
     print("searching for: ", search_query)
-    search_results = requests.get(url, params=params).json()
+    try:
+        search_results = requests.get(url, params=params).json()
 
-    if "error" in search_results or "items" not in search_results:
-        print("error: ", search_results)
+        if "error" in search_results or "items" not in search_results:
+            print("error: ", search_results)
+            return []
+    except Exception as e:
+        print("Error in search: ", e)
         return []
 
     top_results = []
@@ -42,8 +47,14 @@ def scrape_contents(website_links: list) -> list:
     '''
     contents = []
 
+    USER_AGENTS = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.96 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.2 Safari/605.1.15"
+    ]
+
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        "User-Agent": random.choice(USER_AGENTS)
     }
 
     for link in website_links:

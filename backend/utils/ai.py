@@ -1,7 +1,15 @@
 
 import json
 from textwrap import dedent
-from utils.ai_config import get_ai_response
+import time
+for retry in range(5):
+    try:
+        from utils.ai_config import get_ai_response
+        break
+    except Exception as e:
+        if retry == 4:
+            raise e
+        time.sleep(5)
 from utils.helpers import markdown_to_html
 
 # def get_ai_response(system_prompt, messages):
@@ -51,8 +59,8 @@ def filter_search_results(search_query: str, search_results: list) -> str:
     '''
     Filters search results to get the top 3 results
     '''
-    print("search_results: ", search_results)
-    print("search_query: ", search_query)
+    # print("search_results: ", search_results)
+    # print("search_query: ", search_query)
     system_prompt = dedent(
         """You are a content curator who specializes in filtering and selecting the most relevant results from a list of search results.
         You are required to select the top 3 search results that are most relevant to the user's search query based on factors like accuracy, reliability, and relevance.
@@ -101,8 +109,13 @@ def summarize_result_website(search_query: str, website_contents: str) -> str:
         {website_contents}
         """
     )
-
-    response = get_ai_response(system_prompt=system_prompt, messages=[{"role": "user", "content": user_prompt}])
+    try:
+        response = get_ai_response(system_prompt=system_prompt, messages=[{"role": "user", "content": user_prompt}])
+        if not response:
+            raise Exception("No response from AI")
+    except Exception as e:
+        print(f"Error summarizing website content: {e}")
+        response = "Sorry, no summary could be generated for the website content."
     return response
 
 def summarize_search_results(search_query: str, search_results: list) -> str:
@@ -147,6 +160,8 @@ def summarize_search_results(search_query: str, search_results: list) -> str:
     )
 
     response = get_ai_response(system_prompt=system_prompt, messages=[{"role": "user", "content": user_prompt}])
+    if not response:
+        response = "Sorry, no summary could be generated for the search results."
     return markdown_to_html(response)
 
 
@@ -167,6 +182,9 @@ def chat(message: str, search_query: str, search_summary: str, message_history: 
     )
     user_prompt = message
     messages = [*message_history, {"role": "user", "content": user_prompt}]
+    print("Message history: ", flush=True)
+    for message in messages:
+        print(message, flush=True)
     response = get_ai_response(system_prompt=system_prompt, messages=messages)
 
     return response

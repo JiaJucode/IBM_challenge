@@ -46,12 +46,13 @@ def get_ai_response(system_prompt: str,  messages: List[dict[str, str]], model=g
         *[prompt_template.format(role=message['role'], message=message['content']) for message in messages],
         prompt_template.format(role='assistant', message=''),
     ])
+    print(f"Final Prompt:\n{prompt}\n\n", flush=True)
     generated_response = model.generate(prompt=prompt)
     
     response_text = generated_response['results'][0]['generated_text']
-    response_text = response_text[response_text.index('<|assistant|>') + len('<|assistant|>'):].strip()
 
-    return response_text
+    last_assistant_index = response_text.rfind('<|assistant|>')
+    response_text = response_text[last_assistant_index + len('<|assistant|>'):].strip()
 
 
 # trying out

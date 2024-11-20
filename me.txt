@@ -1,0 +1,567 @@
+
+url = https://www.googleapis.com/customsearch/v1?[parameters]
+
+apikey = AIzaSyDOJW8YDy6xFtnbnfywou1H2rnobpZOoDA
+
+Programmable Search Engine ID = 05d488ca8cb8042a0
+
+query = Arabic speech recognition methodologies
+
+
+{
+  "kind": "customsearch#search",
+  "url": {
+    "type": "application/json",
+    "template": "https://www.googleapis.com/customsearch/v1?q={searchTerms}&num={count?}&start={startIndex?}&lr={language?}&safe={safe?}&cx={cx?}&sort={sort?}&filter={filter?}&gl={gl?}&cr={cr?}&googlehost={googleHost?}&c2coff={disableCnTwTranslation?}&hq={hq?}&hl={hl?}&siteSearch={siteSearch?}&siteSearchFilter={siteSearchFilter?}&exactTerms={exactTerms?}&excludeTerms={excludeTerms?}&linkSite={linkSite?}&orTerms={orTerms?}&dateRestrict={dateRestrict?}&lowRange={lowRange?}&highRange={highRange?}&searchType={searchType}&fileType={fileType?}&rights={rights?}&imgSize={imgSize?}&imgType={imgType?}&imgColorType={imgColorType?}&imgDominantColor={imgDominantColor?}&alt=json"
+  },
+  "queries": {
+    "request": [
+      {
+        "title": "Google Custom Search - Arabic speech recognition methodologies",
+        "totalResults": "4990000",
+        "searchTerms": "Arabic speech recognition methodologies",
+        "count": 10,
+        "startIndex": 1,
+        "inputEncoding": "utf8",
+        "outputEncoding": "utf8",
+        "safe": "off",
+        "cx": "05d488ca8cb8042a0"
+      }
+    ],
+    "nextPage": [
+      {
+        "title": "Google Custom Search - Arabic speech recognition methodologies",
+        "totalResults": "4990000",
+        "searchTerms": "Arabic speech recognition methodologies",
+        "count": 10,
+        "startIndex": 11,
+        "inputEncoding": "utf8",
+        "outputEncoding": "utf8",
+        "safe": "off",
+        "cx": "05d488ca8cb8042a0"
+      }
+    ]
+  },
+  "context": {
+    "title": "IBM Hack"
+  },
+  "searchInformation": {
+    "searchTime": 0.291388,
+    "formattedSearchTime": "0.29",
+    "totalResults": "4990000",
+    "formattedTotalResults": "4,990,000"
+  },
+  "items": [
+    {
+      "kind": "customsearch#result",
+      "title": "Deep Learning Methods for Arabic Autoencoder Speech ...",
+      "htmlTitle": "Deep Learning <b>Methods</b> for <b>Arabic</b> Autoencoder <b>Speech</b> ...",
+      "link": "https://onlinelibrary.wiley.com/doi/10.1155/2023/7398538",
+      "displayLink": "onlinelibrary.wiley.com",
+      "snippet": "Feb 28, 2023 ... [11] an autoencoder model was proposed for enhancing Arabic language recognition performance. They used the proposed model to restore the ...",
+      "htmlSnippet": "Feb 28, 2023 <b>...</b> [11] an autoencoder model was proposed for enhancing <b>Arabic</b> language <b>recognition</b> performance. They used the proposed model to restore the&nbsp;...",
+      "formattedUrl": "https://onlinelibrary.wiley.com/doi/10.1155/2023/7398538",
+      "htmlFormattedUrl": "https://onlinelibrary.wiley.com/doi/10.1155/2023/7398538",
+      "pagemap": {
+        "cse_thumbnail": [
+          {
+            "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpKIcZPB1DNggp_-0pHZLNh8Dh_E2VOqZGwkwJ5rVSHL0K4Kh_wW1uefQ&s",
+            "width": "187",
+            "height": "270"
+          }
+        ],
+        "metatags": [
+          {
+            "og:image": "https://onlinelibrary.wiley.com/cms/asset/5927ed8f-3291-48b4-8ef0-aec65479619b/default_cover.jpg?trick=1726115280938",
+            "citation_publication_date": "2023/01/01",
+            "citation_title": "Deep Learning Methods for Arabic Autoencoder Speech Recognition System for Electro-Larynx Device",
+            "citation_author_institution": "College of Information Engineering, Al-Nahrain University, Baghdad, Iraq nahrainuniv.edu.iq",
+            "og:site_name": "Wiley Online Library",
+            "citation_publisher": "John Wiley & Sons, Ltd",
+            "citation_journal_title": "Advances in Human-Computer Interaction",
+            "mathjax-version": "3",
+            "og:description": "Recent advances in speech recognition have achieved remarkable performance comparable with human transcribers’ abilities. But this significant performance is not the same for all the spoken languages...",
+            "twitter:image": "https://onlinelibrary.wiley.com/cms/asset/5927ed8f-3291-48b4-8ef0-aec65479619b/default_cover.jpg?trick=1726115280938",
+            "submission-systems-domains": "/pb-assets/utm_params_config/submission-systems-domains-1667213560157.txt",
+            "citation_online_date": "2023/02/28",
+            "citation_issn": "1687-5907",
+            "citation_language": "en",
+            "citation_fulltext_html_url": "https://onlinelibrary.wiley.com/doi/full/10.1155/2023/7398538",
+            "publication_doi": "10.1155/2023/7398538",
+            "citation_pdf_url": "https://onlinelibrary.wiley.com/doi/pdf/10.1155/2023/7398538",
+            "og:type": "Article",
+            "og:title": "Deep Learning Methods for Arabic Autoencoder Speech Recognition System for Electro‐Larynx Device",
+            "pbcontext": ";page:string:Article/Chapter View;ctype:string:Journal Content;website:website:pericles;journal:journal:3637;requestedJournal:journal:3637;article:article:doi\\:10.1155/2023%2F7398538;wgroup:string:Publication Websites;pageGroup:string:Publication Pages;subPage:string:Full Text;issue:issue:doi\\:10.1155/ahci.v2023.1",
+            "citation_author": "Zinah J. Mohammed Ameen",
+            "citation_abstract_html_url": "https://onlinelibrary.wiley.com/doi/abs/10.1155/2023/7398538",
+            "citation_issue": "1",
+            "citation_firstpage": "7398538",
+            "referrer": "origin-when-cross-origin",
+            "mathjax-enabled": "true",
+            "viewport": "width=device-width,initial-scale=1",
+            "citation_doi": "10.1155/2023/7398538",
+            "mathjax-lazy-load": "true",
+            "dc.identifier": "10.1155/2023/7398538",
+            "citation_volume": "2023",
+            "og:url": "https://onlinelibrary.wiley.com/doi/10.1155/2023/7398538",
+            "article_references": "Mohammed Ameen, Zinah J., \n Abdulrahman Kadhim, Abdulkareem, \nDeep Learning Methods for Arabic Autoencoder Speech Recognition System for Electro-Larynx Device, \nAdvances in Human-Computer Interaction,  2023, 7398538, 11 pages,  2023. \nhttps://doi.org/10.1155/2023/7398538"
+          }
+        ],
+        "cse_image": [
+          {
+            "src": "https://onlinelibrary.wiley.com/cms/asset/5927ed8f-3291-48b4-8ef0-aec65479619b/default_cover.jpg?trick=1726115280938"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "customsearch#result",
+      "title": "Novel Techniques for Dialectal Arabic Speech Recognition ...",
+      "htmlTitle": "Novel <b>Techniques</b> for Dialectal <b>Arabic Speech Recognition</b> ...",
+      "link": "https://link.springer.com/book/10.1007/978-1-4614-1906-8",
+      "displayLink": "link.springer.com",
+      "snippet": "Overview · Presents novel approaches that overcome the major problems in dialectal Arabic speech recognition · Investigates how to benefit from existing ...",
+      "htmlSnippet": "Overview &middot; Presents novel <b>approaches</b> that overcome the major problems in dialectal <b>Arabic speech recognition</b> &middot; Investigates how to benefit from existing&nbsp;...",
+      "formattedUrl": "https://link.springer.com/book/10.1007/978-1-4614-1906-8",
+      "htmlFormattedUrl": "https://link.springer.com/book/10.1007/978-1-4614-1906-8",
+      "pagemap": {
+        "cse_thumbnail": [
+          {
+            "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqvFWTwXggbB-bodO2dtj-5N-NYEU3w1rsjcSa8Hk1wC3bC9R6BTrsuiL5&s",
+            "width": "153",
+            "height": "223"
+          }
+        ],
+        "metatags": [
+          {
+            "og:image": "https://media.springernature.com/w153/springer-static/cover/book/978-1-4614-1906-8.jpg",
+            "og:type": "book",
+            "theme-color": "#e6e6e6",
+            "access": "Yes",
+            "og:site_name": "SpringerLink",
+            "viewport": "width=device-width, initial-scale=1",
+            "og:title": "Novel Techniques for Dialectal Arabic Speech Recognition",
+            "applicable-device": "pc,mobile",
+            "title": "Novel Techniques for Dialectal Arabic Speech Recognition",
+            "citation_springer_api_url": "https://api.springernature.com/xmldata/jats?q=bookdoi:10.1007/978-1-4614-1906-8&api_key=",
+            "og:url": "https://link.springer.com/book/10.1007/978-1-4614-1906-8",
+            "doi": "10.1007/978-1-4614-1906-8"
+          }
+        ],
+        "cse_image": [
+          {
+            "src": "https://media.springernature.com/w153/springer-static/cover/book/978-1-4614-1906-8.jpg"
+          }
+        ],
+        "scholarlyarticle": [
+          {
+            "name": "Diacritics Effect on Arabic Speech Recognition",
+            "headline": "Diacritics Effect on Arabic Speech Recognition",
+            "url": "Diacritics Effect on Arabic Speech Recognition"
+          },
+          {
+            "name": "The impact of phonological rules on Arabic speech recognition",
+            "headline": "The impact of phonological rules on Arabic speech recognition",
+            "url": "The impact of phonological rules on Arabic speech recognition"
+          },
+          {
+            "name": "Evaluating the effect of using different transcription schemes in building a speech recognition system for Arabic",
+            "headline": "Evaluating the effect of using different transcription schemes in building a speech recognition system for Arabic",
+            "url": "Evaluating the effect of using different transcription schemes in building a speech recognition system for Arabic"
+          }
+        ],
+        "listitem": [
+          {
+            "item": "Home",
+            "name": "Home",
+            "position": "1"
+          },
+          {
+            "name": "Book",
+            "position": "2"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "customsearch#result",
+      "title": "Arabic speech recognition using end‐to‐end deep learning ...",
+      "htmlTitle": "<b>Arabic speech recognition</b> using end‐to‐end deep learning ...",
+      "link": "https://ietresearch.onlinelibrary.wiley.com/doi/full/10.1049/sil2.12057",
+      "displayLink": "ietresearch.onlinelibrary.wiley.com",
+      "snippet": "Jun 2, 2021 ... Abstract Arabic automatic speech recognition (ASR) methods with diacritics have the ability to be integrated with other systems better than ...",
+      "htmlSnippet": "Jun 2, 2021 <b>...</b> Abstract <b>Arabic</b> automatic <b>speech recognition</b> (ASR) <b>methods</b> with diacritics have the ability to be integrated with other systems better than&nbsp;...",
+      "formattedUrl": "https://ietresearch.onlinelibrary.wiley.com/doi/full/10.1049/sil2.12057",
+      "htmlFormattedUrl": "https://ietresearch.onlinelibrary.wiley.com/doi/full/10.1049/sil2.12057",
+      "pagemap": {
+        "cse_thumbnail": [
+          {
+            "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ741SKHYYH5KwE9k9bT5mmGAAkSCw4MRBttnEmlKYTOG1M_EWEB-IFI_g&s",
+            "width": "196",
+            "height": "257"
+          }
+        ],
+        "metatags": [
+          {
+            "og:image": "https://ietresearch.onlinelibrary.wiley.com/cms/asset/d18f8111-e84a-497b-a060-1fe52df8ba16/sil2.v15.8.cover.jpg?trick=1720490016176",
+            "citation_publication_date": "2021/10/01",
+            "citation_title": "Arabic speech recognition using end-to-end deep learning",
+            "citation_author_institution": "Computer Science Department Faculty of Sciences Ibb University Ibb Yemen",
+            "og:site_name": "Institution of Engineering and Technology",
+            "citation_publisher": "John Wiley & Sons, Ltd",
+            "citation_journal_title": "IET Signal Processing",
+            "mathjax-version": "3",
+            "og:description": "Arabic automatic speech recognition (ASR) methods with diacritics have the ability to be integrated with other systems better than Arabic ASR methods without diacritics. In this work, the application...",
+            "twitter:image": "https://ietresearch.onlinelibrary.wiley.com/cms/asset/d18f8111-e84a-497b-a060-1fe52df8ba16/sil2.v15.8.cover.jpg?trick=1720490016176",
+            "submission-systems-domains": "/pb-assets/utm_params_config/submission-systems-domains-1667213560157.txt",
+            "citation_online_date": "2021/06/02",
+            "citation_issn": "1751-9683",
+            "citation_language": "en",
+            "citation_fulltext_html_url": "https://onlinelibrary.wiley.com/doi/full/10.1049/sil2.12057",
+            "publication_doi": "10.1049/sil2.12057",
+            "citation_pdf_url": "https://onlinelibrary.wiley.com/doi/pdf/10.1049/sil2.12057",
+            "citation_lastpage": "534",
+            "og:type": "Article",
+            "pbcontext": ";issue:issue:doi\\:10.1049/sil2.v15.8;page:string:Article/Chapter View;ctype:string:Journal Content;journal:journal:17519683;website:website:ietresearch;wgroup:string:Publication Websites;pageGroup:string:Publication Pages;article:article:doi\\:10.1049/sil2.12057;subPage:string:Full Text;requestedJournal:journal:17519683",
+            "og:title": "Arabic speech recognition using end‐to‐end deep learning",
+            "citation_author": "Hamzah A. Alsayadi",
+            "citation_abstract_html_url": "https://onlinelibrary.wiley.com/doi/abs/10.1049/sil2.12057",
+            "citation_issue": "8",
+            "citation_firstpage": "521",
+            "referrer": "origin-when-cross-origin",
+            "mathjax-enabled": "true",
+            "viewport": "width=device-width,initial-scale=1",
+            "citation_doi": "10.1049/sil2.12057",
+            "mathjax-lazy-load": "true",
+            "dc.identifier": "10.1049/sil2.12057",
+            "citation_volume": "15",
+            "og:url": "https://ietresearch.onlinelibrary.wiley.com/doi/10.1049/sil2.12057",
+            "article_references": "Alsayadi, H.A., et al.: Arabic speech recognition using end-to-end deep learning. IET Signal Process.  15(8),  521–534 (2021). https://doi.org/10.1049/sil2.12057"
+          }
+        ],
+        "cse_image": [
+          {
+            "src": "https://ietresearch.onlinelibrary.wiley.com/cms/asset/d18f8111-e84a-497b-a060-1fe52df8ba16/sil2.v15.8.cover.jpg?trick=1720490016176"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "customsearch#result",
+      "title": "Synopsis on Arabic speech recognition - ScienceDirect",
+      "htmlTitle": "Synopsis on <b>Arabic speech recognition</b> - ScienceDirect",
+      "link": "https://www.sciencedirect.com/science/article/pii/S2090447921002859",
+      "displayLink": "www.sciencedirect.com",
+      "snippet": "The paper also explores other topics, such as feature extraction methods, classification approaches, phoneme sets, pronunciation dictionaries, language models, ...",
+      "htmlSnippet": "The paper also explores other topics, such as feature extraction <b>methods</b>, classification <b>approaches</b>, phoneme sets, pronunciation dictionaries, language models,&nbsp;...",
+      "formattedUrl": "https://www.sciencedirect.com/science/article/pii/S2090447921002859",
+      "htmlFormattedUrl": "https://www.sciencedirect.com/science/article/pii/S2090447921002859",
+      "pagemap": {
+        "cse_thumbnail": [
+          {
+            "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTH2n7mk3fKSg_QaCw4RTe3dWorpVELx5LfgtnNxpV9PwLHufOEcenZNs8&s",
+            "width": "112",
+            "height": "150"
+          }
+        ],
+        "metatags": [
+          {
+            "og:image": "https://ars.els-cdn.com/content/image/1-s2.0-S2090447921X0007X-cov150h.gif",
+            "citation_publication_date": "2022/03/01",
+            "citation_title": "Synopsis on Arabic speech recognition",
+            "citation_author_institution": "Department of Computer Engineering, Kuwait University, Kuwait City, Kuwait",
+            "citation_reference": "citation_journal_title=Found TrendsR Signal Process;citation_author=L.R. Rabiner;citation_author=R.W. Schafer;citation_title=Introduction to digital speech processing;citation_firstpage=1;citation_lastpage=194;citation_volume=1;citation_publication_date=2007;citation_issue=1–2;",
+            "citation_publisher": "Elsevier",
+            "citation_article_type": "Full-length article",
+            "citation_type": "JOUR",
+            "citation_id": "101534",
+            "citation_journal_title": "Ain Shams Engineering Journal",
+            "citation_abstract": "<div class=\"Abstracts u-font-serif text-s\" id=\"abstracts\"><div class=\"abstract author\" id=\"ab005\" lang=\"en\"><h2 class=\"section-title u-h4 u-margin-l-top u-margin-xs-bottom\">Abstract</h2><div id=\"as005\"><p id=\"sp0005\">With the advancement and increased usage of intelligible smart devices, researchers have an intensified interest in the field of large-vocabulary speaker-independent continuous speech recognition. Although considerable research has been devoted to English speech recognition, less attention has been paid to the Arabic speech recognition. This paper aims to highlight the achievements that have been made during the last several decades of Arabic speech recognition. The paper also discusses speech recognition components such as corpora, phonemes, language models, acoustic models, and performance evaluation. For an empirical evaluation of Arabic speech recognition, the free, off-the-shelf Mac Soundflower tool was employed to evaluate the recognition performance using a continuous speech corpus that co",
+            "og:title": "Synopsis on Arabic speech recognition",
+            "citation_author": "Fawaz S. Al-Anzi",
+            "citation_pii": "S2090447921002859",
+            "citation_issue": "2",
+            "og:description": "With the advancement and increased usage of intelligible smart devices, researchers have an intensified interest in the field of large-vocabulary spea…",
+            "citation_online_date": "2021/07/21",
+            "citation_author_email": "fawaz.alanzi@ku.edu.kw",
+            "citation_firstpage": "101534",
+            "citation_issn": "2090-4479",
+            "citation_doi": "10.1016/j.asej.2021.06.020",
+            "dc.identifier": "10.1016/j.asej.2021.06.020",
+            "citation_volume": "13"
+          }
+        ],
+        "cse_image": [
+          {
+            "src": "https://ars.els-cdn.com/content/image/1-s2.0-S2090447921X0007X-cov150h.gif"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "customsearch#result",
+      "title": "NOVEL APPROACHES TO ARABIC SPEECH RECOGNITION ...",
+      "htmlTitle": "NOVEL <b>APPROACHES</b> TO <b>ARABIC SPEECH RECOGNITION</b> ...",
+      "link": "https://people.ece.uw.edu/bilmes/p/mypubs/kirchhoff2003-aasr-cnf.pdf",
+      "displayLink": "people.ece.uw.edu",
+      "snippet": "NOVEL APPROACHES TO ARABIC SPEECH RECOGNITION: REPORT FROM THE 2002. JOHNS-HOPKINS SUMMER WORKSHOP. Katrin Kirchhoff , Jeff Bilmes , Sourin Das. , Nicolae Duta.",
+      "htmlSnippet": "NOVEL <b>APPROACHES</b> TO <b>ARABIC SPEECH RECOGNITION</b>: REPORT FROM THE 2002. JOHNS-HOPKINS SUMMER WORKSHOP. Katrin Kirchhoff , Jeff Bilmes , Sourin Das. , Nicolae Duta.",
+      "formattedUrl": "https://people.ece.uw.edu/bilmes/p/mypubs/kirchhoff2003-aasr-cnf.pdf",
+      "htmlFormattedUrl": "https://people.ece.uw.edu/bilmes/p/mypubs/kirchhoff2003-aasr-cnf.pdf",
+      "pagemap": {
+        "cse_thumbnail": [
+          {
+            "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyc_CiN6unUIKQLk7_z-GnYrbLPfR1JqWen4eVmqwIU9Pkj9WtNOqURc8&s",
+            "width": "197",
+            "height": "255"
+          }
+        ],
+        "metatags": [
+          {
+            "producer": "GNU Ghostscript 6.52"
+          }
+        ],
+        "cse_image": [
+          {
+            "src": "x-raw-image:///66f15f2a4bdcb618a15bbceb672625614c4c5cd079e2bb69a6910ccfb799d76a"
+          }
+        ]
+      },
+      "mime": "application/pdf",
+      "fileFormat": "PDF/Adobe Acrobat"
+    },
+    {
+      "kind": "customsearch#result",
+      "title": "ArzEn-LLM: Code-Switched Egyptian Arabic-English Translation ...",
+      "htmlTitle": "ArzEn-LLM: Code-Switched Egyptian <b>Arabic</b>-English Translation ...",
+      "link": "https://arxiv.org/abs/2406.18120",
+      "displayLink": "arxiv.org",
+      "snippet": "Jun 26, 2024 ... This paper explores the intricacies of machine translation (MT) and automatic speech recognition (ASR) systems, focusing on translating code-switched Egyptian ...",
+      "htmlSnippet": "Jun 26, 2024 <b>...</b> This paper explores the intricacies of machine translation (MT) and automatic <b>speech recognition</b> (ASR) systems, focusing on translating code-switched Egyptian&nbsp;...",
+      "formattedUrl": "https://arxiv.org/abs/2406.18120",
+      "htmlFormattedUrl": "https://arxiv.org/abs/2406.18120",
+      "pagemap": {
+        "cse_thumbnail": [
+          {
+            "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStsc5IszP_UC7vkymrk7PhjHGOFQhTh862xtJcQkxDem2IteJQXpob6_Vb&s",
+            "width": "336",
+            "height": "150"
+          }
+        ],
+        "metatags": [
+          {
+            "og:image": "/static/browse/0.3.4/images/arxiv-logo-fb.png",
+            "theme-color": "#ffffff",
+            "og:image:width": "1200",
+            "twitter:card": "summary",
+            "citation_title": "ArzEn-LLM: Code-Switched Egyptian Arabic-English Translation and Speech Recognition Using LLMs",
+            "og:site_name": "arXiv.org",
+            "citation_date": "2024/06/26",
+            "og:description": "Motivated by the widespread increase in the phenomenon of code-switching between Egyptian Arabic and English in recent times, this paper explores the intricacies of machine translation (MT) and automatic speech recognition (ASR) systems, focusing on translating code-switched Egyptian Arabic-English to either English or Egyptian Arabic. Our goal is to present the methodologies employed in developing these systems, utilizing large language models such as LLama and Gemma. In the field of ASR, we explore the utilization of the Whisper model for code-switched Egyptian Arabic recognition, detailing our experimental procedures including data preprocessing and training techniques. Through the implementation of a consecutive speech-to-text translation system that integrates ASR with MT, we aim to overcome challenges posed by limited resources and the unique characteristics of the Egyptian Arabic dialect. Evaluation against established metrics showcases promising results, with our methodologies yielding a significant i",
+            "og:image:secure_url": "/static/browse/0.3.4/images/arxiv-logo-fb.png",
+            "twitter:image": "https://static.arxiv.org/icons/twitter/arxiv-logo-twitter-square.png",
+            "citation_arxiv_id": "2406.18120",
+            "citation_online_date": "2024/07/12",
+            "twitter:image:alt": "arXiv logo",
+            "twitter:site": "@arxiv",
+            "citation_pdf_url": "http://arxiv.org/pdf/2406.18120",
+            "msapplication-tilecolor": "#da532c",
+            "og:type": "website",
+            "og:image:alt": "arXiv logo",
+            "twitter:title": "ArzEn-LLM: Code-Switched Egyptian Arabic-English Translation and...",
+            "og:title": "ArzEn-LLM: Code-Switched Egyptian Arabic-English Translation and Speech Recognition Using LLMs",
+            "citation_abstract": "Motivated by the widespread increase in the phenomenon of code-switching between Egyptian Arabic and English in recent times, this paper explores the intricacies of machine translation (MT) and automatic speech recognition (ASR) systems, focusing on translating code-switched Egyptian Arabic-English to either English or Egyptian Arabic. Our goal is to present the methodologies employed in developing these systems, utilizing large language models such as LLama and Gemma. In the field of ASR, we explore the utilization of the Whisper model for code-switched Egyptian Arabic recognition, detailing our experimental procedures including data preprocessing and training techniques. Through the implementation of a consecutive speech-to-text translation system that integrates ASR with MT, we aim to overcome challenges posed by limited resources and the unique characteristics of the Egyptian Arabic dialect. Evaluation against established metrics showcases promising results, with our methodologies yielding a significant i",
+            "og:image:height": "700",
+            "citation_author": "Heakl, Ahmed",
+            "viewport": "width=device-width, initial-scale=1",
+            "twitter:description": "Motivated by the widespread increase in the phenomenon of code-switching between Egyptian Arabic and English in recent times, this paper explores the intricacies of machine translation (MT) and...",
+            "og:url": "https://arxiv.org/abs/2406.18120v2"
+          }
+        ],
+        "cse_image": [
+          {
+            "src": "https://arxiv.org/static/browse/0.3.4/images/arxiv-logo-one-color-white.svg"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "customsearch#result",
+      "title": "Arabic Speech Recognition: Challenges and State of the Art",
+      "htmlTitle": "<b>Arabic Speech Recognition</b>: Challenges and State of the Art",
+      "link": "https://www.worldscientific.com/doi/pdf/10.1142/9789813229396_0001",
+      "displayLink": "www.worldscientific.com",
+      "snippet": "Many standard techniques for acoustic and language modeling such as context dependent acoustic models and n- gram language models can be easily applied to ...",
+      "htmlSnippet": "Many standard <b>techniques</b> for acoustic and language modeling such as context dependent acoustic models and n- gram language models can be easily applied to&nbsp;...",
+      "formattedUrl": "https://www.worldscientific.com/doi/pdf/10.1142/9789813229396_0001",
+      "htmlFormattedUrl": "https://www.worldscientific.com/doi/pdf/10.1142/9789813229396_0001",
+      "pagemap": {
+        "cse_thumbnail": [
+          {
+            "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8PHLVVevr6DOK1WIuWqKWq2uh40NhtvImbOuPdWGo2Hf6E0n8JQs6vtjP&s",
+            "width": "241",
+            "height": "209"
+          }
+        ],
+        "metatags": [
+          {
+            "moddate": "D:20180919005035-08'00'",
+            "creationdate": "D:20180917111842+08'00'",
+            "creator": "Adobe Acrobat Pro DC 18.11.20055; Atypon Systems PDFplus",
+            "author": "Neamat El Gayar & Ching Y. Suen",
+            "producer": "Adobe Acrobat Pro DC 18.11.20055",
+            "title": "Computational Linguistics, Speech and Image Processing for Arabic Language : Arabic Speech Recognition: Challenges and State of the Art"
+          }
+        ],
+        "cse_image": [
+          {
+            "src": "x-raw-image:///d4dd7ea4a8af97eefca439530591e23ce064265fb30e96459c5fa067256a55ee"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "customsearch#result",
+      "title": "Review of Automatic Speech Recognition Methodologies",
+      "htmlTitle": "Review of Automatic <b>Speech Recognition Methodologies</b>",
+      "link": "https://rosap.ntl.bts.gov/view/dot/68518",
+      "displayLink": "rosap.ntl.bts.gov",
+      "snippet": "Language: Select one.. Amharic, Arabic, Bambara, Bengali, Burmese, Chinese, Danish, Dutch, Dzongkha, English, Farsi, Fijian, French, Fula, German, HaitianCreole ...",
+      "htmlSnippet": "Language: Select one.. Amharic, <b>Arabic</b>, Bambara, Bengali, Burmese, Chinese, Danish, Dutch, Dzongkha, English, Farsi, Fijian, French, Fula, German, HaitianCreole&nbsp;...",
+      "formattedUrl": "https://rosap.ntl.bts.gov/view/dot/68518",
+      "htmlFormattedUrl": "https://rosap.ntl.bts.gov/view/dot/68518",
+      "pagemap": {
+        "cse_thumbnail": [
+          {
+            "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPdWUdhEBQ7ktFC8drqr_PjGPf_Off4LNTjY_g_9sAbds94yAF3TNN_Y8R&s",
+            "width": "225",
+            "height": "225"
+          }
+        ],
+        "metatags": [
+          {
+            "citation_keywords": "Machine learning",
+            "citation_publication_date": "2023/08/01",
+            "citation_title": "Review of Automatic Speech Recognition Methodologies",
+            "viewport": "width=device-width, initial-scale=1",
+            "citation_technical_report_number": "DOT/FAA/TC-23/47",
+            "citation_publisher": "United States. Department of Transportation. Federal Aviation Administration. William J. Hughes Technical Center",
+            "citation_language": "English",
+            "citation_doi": "10.21949/1528227",
+            "citation_fulltext_html_url": "https://rosap.ntl.bts.gov/view/dot/68518",
+            "citation_abstract": "This report highlights the crucial role of Automatic Speech Recognition (ASR) techniques in enhancing safety for air traffic control (ATC) in terminal environments. ASR techniques facilitate efficient and accurate transcription of verbal communications, reducing the likelihood of errors. The report also details the evolution of ASR technologies, converging to machine learning approaches from Hidden Markov Models (HMMs), Deep Neural Networks (DNNs) to End-to-End models. Finally, the report details the latest advancements in ASR techniques, focusing on transformer-based models that have outperformed traditional ASR approaches and achieved state-of-the-art results on ASR benchmarks.",
+            "citation_author": "Achour, Gabriel",
+            "citation_pdf_url": "https://rosap.ntl.bts.gov/view/dot/68518/dot_68518_DS1.pdf"
+          }
+        ],
+        "cse_image": [
+          {
+            "src": "https://rosap.ntl.bts.gov/sites/default/themes/dot/images/linkedin-round.svg"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "customsearch#result",
+      "title": "Unsupervised Method for Improving Arabic Speech Recognition ...",
+      "htmlTitle": "Unsupervised <b>Method</b> for Improving <b>Arabic Speech Recognition</b> ...",
+      "link": "https://aclanthology.org/Y17-1024.pdf",
+      "displayLink": "aclanthology.org",
+      "snippet": "Nov 16, 2017 ... One of the big challenges connected to large vocabulary Arabic speech recognition is the limit of vocabulary, which causes high out-.",
+      "htmlSnippet": "Nov 16, 2017 <b>...</b> One of the big challenges connected to large vocabulary <b>Arabic speech recognition</b> is the limit of vocabulary, which causes high out-.",
+      "formattedUrl": "https://aclanthology.org/Y17-1024.pdf",
+      "htmlFormattedUrl": "https://aclanthology.org/Y17-1024.pdf",
+      "pagemap": {
+        "cse_thumbnail": [
+          {
+            "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTU54HGS-6iAZEx2HCXdD7BLLBjDadi4I5W9E8qMZKa-IjbpFaEsdzmMxaK&s",
+            "width": "333",
+            "height": "151"
+          }
+        ],
+        "metatags": [
+          {
+            "citation_publication_date": "2017/11"
+          },
+          {
+            "creationdate": "D:20180628004333",
+            "creator": "PDFium",
+            "producer": "PDFium"
+          }
+        ],
+        "cse_image": [
+          {
+            "src": "x-raw-image:///50907a9792a09e3b342bcfbc9600ef4be16cb5430a67325c3db96f56b1ebb22e"
+          }
+        ]
+      },
+      "mime": "application/pdf",
+      "fileFormat": "PDF/Adobe Acrobat"
+    },
+    {
+      "kind": "customsearch#result",
+      "title": "Arabic Automatic Speech Recognition: A Systematic Literature Review",
+      "htmlTitle": "<b>Arabic</b> Automatic <b>Speech Recognition</b>: A Systematic Literature Review",
+      "link": "https://www.mdpi.com/2076-3417/12/17/8898",
+      "displayLink": "www.mdpi.com",
+      "snippet": "Examples of these techniques are Artificial Neutral Network (ANN), Hidden Markov Model (HMM), and Dynamic Time Warping (DTW). The development of Arabic speech ...",
+      "htmlSnippet": "Examples of these <b>techniques</b> are Artificial Neutral Network (ANN), Hidden Markov Model (HMM), and Dynamic Time Warping (DTW). The development of <b>Arabic speech</b>&nbsp;...",
+      "formattedUrl": "https://www.mdpi.com/2076-3417/12/17/8898",
+      "htmlFormattedUrl": "https://www.mdpi.com/2076-3417/12/17/8898",
+      "pagemap": {
+        "metatags": [
+          {
+            "dc.publisher": "Multidisciplinary Digital Publishing Institute",
+            "prism.startingpage": "8898",
+            "citation_publication_date": "2022/1",
+            "theme-color": "#ffffff",
+            "citation_title": "Arabic Automatic Speech Recognition: A Systematic Literature Review",
+            "citation_publisher": "Multidisciplinary Digital Publishing Institute",
+            "citation_journal_title": "Applied Sciences",
+            "citation_id": "mdpi-app12178898",
+            "dc.rights": "http://creativecommons.org/licenses/by/3.0/",
+            "dc.format": "application/pdf",
+            "sso-service": "mdpi",
+            "prism.publicationdate": "2022-09-05",
+            "msapplication-tileimage": "https://pub.mdpi-res.com/img/journals/applsci-logo-sq.png?8600e93ff98dbf14",
+            "title": "Arabic Automatic Speech Recognition: A Systematic Literature Review",
+            "prism.issn": "2076-3417",
+            "citation_online_date": "2022/09/05",
+            "prism.number": "17",
+            "citation_issn": "2076-3417",
+            "dc.type": "Review",
+            "dc.source": "Applied Sciences 2022, Vol. 12, Page 8898",
+            "dc.creator": "Amira Dhouib",
+            "citation_pdf_url": "https://www.mdpi.com/2076-3417/12/17/8898/pdf?version=1662451873",
+            "application-name": " ",
+            "prism.publicationname": "Applied Sciences",
+            "dc.description": "Automatic Speech Recognition (ASR), also known as Speech-To-Text (STT) or computer speech recognition, has been an active field of research recently. This study aims to chart this field by performing a Systematic Literature Review (SLR) to give insight into the ASR studies proposed, especially for the Arabic language. The purpose is to highlight the trends of research about Arabic ASR and guide researchers with the most significant studies published over ten years from 2011 to 2021. This SLR attempts to tackle seven specific research questions related to the toolkits used for developing and evaluating Arabic ASR, the supported type of the Arabic language, the used feature extraction/classification techniques, the type of speech recognition, the performance of Arabic ASR, the existing gaps facing researchers, along with some future research. Across five databases, 38 studies met our defined inclusion criteria. Our results showed different open-source toolkits to support Arabic speech recognition. The most prom",
+            "citation_author": "Dhouib, Amira",
+            "dc.date": "2022-09-05",
+            "citation_abstract_html_url": "https://www.mdpi.com/2076-3417/12/17/8898",
+            "citation_issue": "17",
+            "prism.volume": "12",
+            "citation_firstpage": "8898",
+            "viewport": "width=device-width, initial-scale=1.0",
+            "citation_doi": "10.3390/app12178898",
+            "dc.title": "Arabic Automatic Speech Recognition: A Systematic Literature Review",
+            "dc.identifier": "10.3390/app12178898",
+            "dc.subject": "Arabic language processing",
+            "prism.section": "Review",
+            "citation_volume": "12",
+            "dc.language": "en"
+          }
+        ],
+        "scholarlyarticle": [
+          {
+            "name": "Arabic Automatic Speech Recognition: A Systematic Literature Review",
+            "publisher": "Multidisciplinary Digital Publishing Institute",
+            "url": "https://www.mdpi.com/2076-3417/12/17/8898"
+          }
+        ]
+      }
+    }
+  ]
+}
+techwards@techwards-ThinkPad-E15-Gen-2:~$ 
+

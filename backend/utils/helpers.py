@@ -16,7 +16,7 @@ def get_middle_x_chars(s, x):
         return s[start:end]
     
 
-def get_middle_truncated_text(text, max_tokens=4000):
+def get_middle_truncated_text(text, max_tokens=3000):
         
         if not text or not text.strip():
             return ""
@@ -28,7 +28,6 @@ def get_middle_truncated_text(text, max_tokens=4000):
         texts = text_splitter.split_text(text)
 
         # get middle chunk
-        print(texts, len(texts) // 2)
         middle_chunk = texts[max(0, (len(texts) // 2) - 1)]
         return middle_chunk
 
